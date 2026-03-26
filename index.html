@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<!-- Basic page settings -->
+	<meta charset="UTF-8" />
+	<!-- Text shown in the browser tab -->
+	<title>Gallery</title>
+
+	<!-- Tailwind CSS: utility classes like bg-white, p-4, rounded-xl come from here -->
+	<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<!--
+	Body classes set the default look of the whole page:
+	- bg-gray-50 gives a light background
+	- text-gray-900 gives dark default text
+-->
+<body class="bg-gray-50 text-gray-900">
+
+	<!-- NAVBAR: top area with title + login button -->
+	<header class="border-b bg-white">
+		<!-- Centers content and limits width (max-w-5xl) -->
+		<div class="max-w-5xl mx-auto flex justify-between items-center p-4">
+			<h1 class="text-xl font-semibold">Gallery</h1>
+
+			<!--
+				authSection is a placeholder for authentication UI.
+				JavaScript can replace this button with user info/logout later.
+			-->
+			<div id="authSection">
+				<!-- loginBtn is easy to target in JS (e.g., addEventListener on click) -->
+				<button id="loginBtn" class="bg-black text-white px-4 py-2 rounded-xl">
+					Login
+				</button>
+			</div>
+		</div>
+	</header>
+
+	<!-- MAIN: main page content -->
+	<main class="max-w-5xl mx-auto p-6">
+
+		<!--
+			Upload section for signed-in users.
+			"hidden" means it starts invisible; JS can remove "hidden" to show it.
+		-->
+		<div id="uploadSection" class="hidden mb-6">
+			<!-- File picker where user selects an image -->
+			<input type="file" id="fileInput" class="mb-2"/>
+			<!-- uploadBtn can be used by JS to start the upload process -->
+			<button id="uploadBtn" class="bg-black text-white px-4 py-2 rounded-xl">
+				Upload
+			</button>
+		</div>
+
+		<!--
+			Gallery container.
+			JS will usually create <img> (or card) elements and insert them here.
+			Grid classes control responsive layout (2 columns on small, 3 on md+).
+		-->
+		<div id="gallery" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+			<!-- Images will go here -->
+		</div>
+
+	</main>
+
+	<!--
+		Load JavaScript as an ES module.
+		type="module" allows modern JS features and import/export.
+	-->
+	<!-- Load local (ignored) runtime config before app.js -->
+	<script src="config.local.js"></script>
+	<script type="module" src="app.js"></script>
+</body>
+</html>

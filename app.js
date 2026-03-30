@@ -121,41 +121,37 @@ uploadBtn.onclick = async () => {
     ];
 
     // Step 1: Upload the actual file to Appwrite Storage.
-    // Docs-style object syntax for createFile.
+    // Appwrite Web SDK v13 uses positional arguments here.
     const uploaded = await storage.createFile(
-      {
-        // Which storage bucket to upload into.
-        bucketId: BUCKET_ID,
-        // Auto-generate a unique file ID.
-        fileId: ID.unique(),
-        // The browser File object selected by the user.
-        file,
-        // File permissions.
-        permissions: ownerPermissions
-      }
+      // Which storage bucket to upload into.
+      BUCKET_ID,
+      // Auto-generate a unique file ID.
+      ID.unique(),
+      // The browser File object selected by the user.
+      file,
+      // File permissions.
+      ownerPermissions
     );
 
     // Step 2: Save metadata in the database (separate from the file itself).
     // This lets you query/filter records without reading raw storage directly.
     await databases.createDocument(
+      // Database + collection where gallery records are stored.
+      DB_ID,
+      COLLECTION_ID,
+      // Auto-generate a unique document ID.
+      ID.unique(),
+      // Document data (fields must match your collection attributes).
       {
-        // Database + collection where gallery records are stored.
-        databaseId: DB_ID,
-        collectionId: COLLECTION_ID,
-        // Auto-generate a unique document ID.
-        documentId: ID.unique(),
-        // Document data (fields must match your collection attributes).
-        data: {
-          // Link document to the uploaded storage file.
-          fileId: uploaded.$id,
-          // Track who uploaded it.
-          userId: currentUser.$id,
-          // Example moderation flag.
-          approved: true
-        },
-        // Document permissions (same pattern as file permissions).
-        permissions: ownerPermissions
-      }
+        // Link document to the uploaded storage file.
+        fileId: uploaded.$id,
+        // Track who uploaded it.
+        userId: currentUser.$id,
+        // Example moderation flag.
+        approved: true
+      },
+      // Document permissions (same pattern as file permissions).
+      ownerPermissions
     );
 
     // Refresh the gallery so the newly uploaded image appears on screen.
@@ -177,11 +173,11 @@ async function loadImages() {
 
   // try/catch prevents one failed request from crashing the whole page.
   try {
-    const res = await databases.listDocuments({
-      databaseId: DB_ID,
-      collectionId: COLLECTION_ID,
-      queries: [Query.equal("approved", true)]
-    });
+    const res = await databases.listDocuments(
+      DB_ID,
+      COLLECTION_ID,
+      [Query.equal("approved", true)]
+    );
 
     // Clear old images before rendering the fresh list.
     gallery.innerHTML = "";
@@ -190,10 +186,7 @@ async function loadImages() {
       const img = document.createElement("img");
 
       // Use SDK helper to build the correct file view URL.
-      img.src = storage.getFileView({
-        bucketId: BUCKET_ID,
-        fileId: doc.fileId
-      }).toString();
+      img.src = storage.getFileView(BUCKET_ID, doc.fileId);
       img.className = "rounded-xl shadow";
 
       // If a single image fails to load, hide just that image instead of breaking all.

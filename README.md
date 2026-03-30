@@ -69,14 +69,14 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-	A[Local .env (ignored)] --> C[scripts/generate-config.sh]
-	B[Appwrite Site env vars] --> C
-	C --> D[config.local.js (ignored)]
-	D --> E[index.html loads config.local.js]
-	E --> F[app.js reads window.APP_CONFIG]
-	F --> G[Connect to Appwrite client APIs]
+	LENV["Local .env (ignored)"] --> GEN["generate-config.sh"]
+	SITEENV["Appwrite Site environment variables"] --> GEN
+	GEN --> RUNTIMECFG["config.local.js (ignored)"]
+	RUNTIMECFG --> HTML["index.html loads config.local.js"]
+	HTML --> APP["app.js reads window.APP_CONFIG"]
+	APP --> API["Connect to Appwrite APIs"]
 
-	H[Git repository] -.tracks.-> I[.env.example + script + app code]
-	H -.does not track.-> A
-	H -.does not track.-> D
+	GIT["Git repository"] -. "tracks" .-> TRACKED[".env.example + script + app code"]
+	GIT -. "does not track" .-> LENV
+	GIT -. "does not track" .-> RUNTIMECFG
 ```

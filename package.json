@@ -1,0 +1,25 @@
+{
+  "name": "psych-honours-2026",
+  "version": "1.0.0",
+  "description": "Appwrite gallery site",
+  "main": "app.js",
+  "scripts": {
+    "build:css": "tailwindcss -i ./styles/input.css -o ./styles/output.css --minify",
+    "watch:css": "tailwindcss -i ./styles/input.css -o ./styles/output.css --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sxn-star/psych-honours-2026.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/sxn-star/psych-honours-2026/issues"
+  },
+  "homepage": "https://github.com/sxn-star/psych-honours-2026#readme",
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}

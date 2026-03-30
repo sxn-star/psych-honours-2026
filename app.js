@@ -6,8 +6,7 @@
 // - ID: helper to generate unique IDs (e.g., ID.unique())
 // - Query: helper to filter document lists
 // - Permission/Role: docs-recommended helpers for access control syntax
-// - OAuthProvider: provider enums like OAuthProvider.Google
-import { Client, Account, Storage, Databases, ID, Query, Permission, Role, OAuthProvider } 
+import { Client, Account, Storage, Databases, ID, Query, Permission, Role } 
 from "https://cdn.jsdelivr.net/npm/appwrite@13.0.0/+esm";
 
 // Read runtime config from config.local.js (loaded by index.html).
@@ -57,14 +56,13 @@ const loginBtn = document.getElementById("loginBtn");
 
 // When the button is clicked, start Google OAuth login with Appwrite.
 loginBtn.onclick = () => {
-  // Docs-style object syntax for OAuth2 session creation.
-  // provider: explicitly use Google OAuth2.
-  // success/failure: redirect back to this page either way.
-  account.createOAuth2Session({
-    provider: OAuthProvider.Google,
-    success: window.location.href,
-    failure: window.location.href
-  });
+  // Appwrite Web SDK v13-compatible OAuth call.
+  // Use Google and return to this page on success/failure.
+  account.createOAuth2Session(
+    "google",
+    window.location.href,
+    window.location.href
+  );
 };
 
 // Will store the logged-in user's profile data after we fetch it.

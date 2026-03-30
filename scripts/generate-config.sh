@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# This script converts environment variables into config.local.js,
+# which the browser can read via window.APP_CONFIG.
+#
+# Why this exists:
+# - Browser JavaScript cannot directly read .env files.
+# - We keep .env private and generate a runtime config file instead.
+
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="${1:-$ROOT_DIR/.env}"
 OUT_FILE="$ROOT_DIR/config.local.js"

@@ -1,0 +1,11 @@
+/*
+	Tailwind source file.
+	The build command reads this file and generates styles/output.css.
+*/
+
+/* Browser consistency resets + sensible defaults */
+@tailwind base;
+/* Reusable class-based components (if you add any in future) */
+@tailwind components;
+/* Utility classes like p-4, rounded-xl, text-gray-900, etc. */
+@tailwind utilities;

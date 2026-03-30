@@ -5,9 +5,13 @@
 1. Copy example env file:
 	- `cp .env.example .env`
 2. Fill in your Appwrite values in `.env`.
-3. Generate runtime config for the browser:
+3. Install dependencies:
+	- `npm install`
+4. Build Tailwind CSS:
+	- `npm run build:css`
+5. Generate runtime config for the browser:
 	- `./scripts/generate-config.sh`
-4. Open `index.html` (or run a local static server).
+6. Open `index.html` (or run a local static server).
 
 `config.local.js` and `.env` are ignored by Git and should never be committed.
 
@@ -19,7 +23,8 @@ This repo is set up for Appwrite Sites with environment variables injected at bu
 
 - **Repository:** `sxn-star/psych-honours-2026`
 - **Production branch:** `main`
-- **Build command:** `bash ./scripts/generate-config.sh`
+- **Install command:** `npm ci`
+- **Build command:** `npm run build:css && bash ./scripts/generate-config.sh`
 - **Output directory:** `.`
 
 ### Environment variables (in Appwrite Site)
@@ -38,3 +43,40 @@ Add these in your Appwrite Site environment settings:
 - Project/database/bucket/collection IDs are configuration values for the client app.
 - Access control is enforced by your Appwrite permissions and auth rules.
 - `git-secrets` is enabled in this repo as an extra commit-time protection layer.
+
+## App flow diagram
+
+```mermaid
+flowchart TD
+	A[Page loads] --> B[Load config.local.js]
+	B --> C[Initialize Appwrite client]
+	C --> D[Run checkAuth]
+	D -->|Logged in| E[Show upload section]
+	D -->|Not logged in| F[Keep upload section hidden]
+	E --> G[User selects file and clicks Upload]
+	F --> H[User clicks Login]
+	H --> I[Google OAuth redirect]
+	I --> A
+	G --> J[Upload file to Storage]
+	J --> K[Create metadata document in Database]
+	K --> L[Run loadImages]
+	A --> L
+	L --> M[Query approved documents]
+	M --> N[Render image grid]
+```
+
+## Config and secret-safe flow
+
+```mermaid
+flowchart LR
+	A[Local .env (ignored)] --> C[scripts/generate-config.sh]
+	B[Appwrite Site env vars] --> C
+	C --> D[config.local.js (ignored)]
+	D --> E[index.html loads config.local.js]
+	E --> F[app.js reads window.APP_CONFIG]
+	F --> G[Connect to Appwrite client APIs]
+
+	H[Git repository] -.tracks.-> I[.env.example + script + app code]
+	H -.does not track.-> A
+	H -.does not track.-> D
+```

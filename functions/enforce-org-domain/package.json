@@ -1,0 +1,11 @@
+{
+  "name": "enforce-org-domain-function",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Appwrite Function: assign labels based on allowed email domain",
+  "main": "src/main.js",
+  "type": "commonjs",
+  "dependencies": {
+    "node-appwrite": "^17.0.0"
+  }
+}

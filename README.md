@@ -80,3 +80,24 @@ flowchart LR
 	GIT -. "does not track" .-> LENV
 	GIT -. "does not track" .-> RUNTIMECFG
 ```
+
+## Optional: Domain-enforcement function (Git deployment)
+
+This repo includes a function scaffold at `functions/enforce-org-domain`.
+
+Use these values in Appwrite Function settings when connecting this repo:
+
+- **Repository:** `sxn-star/psych-honours-2026`
+- **Branch:** `main`
+- **Root directory:** `functions/enforce-org-domain`
+- **Entrypoint:** `src/main.js`
+- **Build commands:** `npm install`
+
+Set these function environment variables:
+
+- `APPWRITE_ENDPOINT` = `https://cloud.appwrite.io/v1`
+- `APPWRITE_PROJECT_ID` = your project id
+- `APPWRITE_API_KEY` = API key with user read/write scopes (set as secret)
+- `ALLOWED_DOMAIN` = allowed email domain (example: `example.org`)
+
+Add a user-created event trigger so the function labels new users automatically.

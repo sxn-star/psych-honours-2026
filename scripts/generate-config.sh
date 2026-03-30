@@ -16,6 +16,11 @@ else
   SOURCE_DESC="process environment"
 fi
 
+# Appwrite Sites automatically provides these variables.
+# Use them as fallback when custom APPWRITE_* vars are not explicitly set.
+: "${APPWRITE_ENDPOINT:=${APPWRITE_SITE_API_ENDPOINT:-}}"
+: "${APPWRITE_PROJECT_ID:=${APPWRITE_SITE_PROJECT_ID:-}}"
+
 required_vars=(
   APPWRITE_ENDPOINT
   APPWRITE_PROJECT_ID

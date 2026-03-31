@@ -111,16 +111,16 @@ function bindDropzoneHandlers() {
 
   dropzone.ondragover = (event) => {
     event.preventDefault();
-    dropzone.classList.add("border-black", "bg-gray-100", "dark:border-white", "dark:bg-gray-800");
+    dropzone.classList.add("border-brand-deep", "bg-brand-paper", "dark:border-brand-mist", "dark:bg-brand-sky/20");
   };
 
   dropzone.ondragleave = () => {
-    dropzone.classList.remove("border-black", "bg-gray-100", "dark:border-white", "dark:bg-gray-800");
+    dropzone.classList.remove("border-brand-deep", "bg-brand-paper", "dark:border-brand-mist", "dark:bg-brand-sky/20");
   };
 
   dropzone.ondrop = (event) => {
     event.preventDefault();
-    dropzone.classList.remove("border-black", "bg-gray-100", "dark:border-white", "dark:bg-gray-800");
+    dropzone.classList.remove("border-brand-deep", "bg-brand-paper", "dark:border-brand-mist", "dark:bg-brand-sky/20");
 
     const files = event.dataTransfer?.files;
     selectedFile = files && files.length > 0 ? files[0] : null;
@@ -208,7 +208,7 @@ async function loadStudentGallery(student) {
     studentGallery.innerHTML = "";
 
     if (res.documents.length === 0) {
-      studentGallery.innerHTML = "<p class=\"text-sm text-gray-500 dark:text-gray-400\">No approved uploads for this student yet.</p>";
+      studentGallery.innerHTML = "<p class=\"text-sm text-brand-deep/75 dark:text-brand-mist/80\">No approved uploads for this student yet.</p>";
       return;
     }
 
@@ -219,13 +219,13 @@ async function loadStudentGallery(student) {
       const img = document.createElement("img");
       img.src = storage.getFileView(bucketId, imageId);
       img.alt = doc.imageName ? `Upload: ${doc.imageName}` : "Student upload";
-      img.className = "aspect-square w-full rounded-xl border border-gray-200 object-cover shadow-sm transition-all duration-200 ease-out hover:scale-[1.01] hover:shadow dark:border-gray-700";
+      img.className = "aspect-square w-full rounded-xl border border-brand-sky/40 object-cover shadow-sm transition-all duration-200 ease-out hover:scale-[1.01] hover:shadow dark:border-brand-sky/50";
       img.onerror = () => img.remove();
       studentGallery.appendChild(img);
     });
   } catch (error) {
     const detail = error && error.message ? error.message : "Unknown error";
-    studentGallery.innerHTML = `<p class=\"text-sm text-gray-500 dark:text-gray-400\">Could not load student gallery: ${detail}</p>`;
+    studentGallery.innerHTML = `<p class=\"text-sm text-brand-deep/75 dark:text-brand-mist/80\">Could not load student gallery: ${detail}</p>`;
   }
 }
 
@@ -236,7 +236,7 @@ async function bootstrap() {
     studentTitle.textContent = "Student not found";
     studentSubtitle.textContent = "Use the home page index to open a valid student page.";
     uploadSection.classList.add("hidden");
-    studentGallery.innerHTML = "<p class=\"text-sm text-gray-500 dark:text-gray-400\">Invalid student link.</p>";
+    studentGallery.innerHTML = "<p class=\"text-sm text-brand-deep/75 dark:text-brand-mist/80\">Invalid student link.</p>";
     return;
   }
 

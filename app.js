@@ -84,7 +84,7 @@ function renderStudentIndex(filterText = "") {
   studentLinks.innerHTML = "";
 
   if (filtered.length === 0) {
-    studentLinks.innerHTML = "<p class=\"text-sm leading-relaxed text-gray-500 dark:text-gray-400\">No matching student pages found.</p>";
+    studentLinks.innerHTML = "<p class=\"text-sm leading-relaxed text-brand-deep/75 dark:text-brand-mist/80\">No matching student pages found.</p>";
     return;
   }
 
@@ -92,7 +92,7 @@ function renderStudentIndex(filterText = "") {
     const link = document.createElement("a");
     link.href = `student.html?student=${encodeURIComponent(student.slug)}`;
     link.textContent = student.name;
-    link.className = "mb-2 block rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-[15px] font-medium leading-6 text-gray-800 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-1 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:hover:bg-gray-900 dark:focus:ring-gray-300 dark:focus:ring-offset-gray-900";
+    link.className = "mb-2 block rounded-xl border border-brand-sky/40 bg-brand-paper px-4 py-3.5 text-[15px] font-medium leading-6 text-brand-deep shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-mist hover:shadow focus:outline-none focus:ring-2 focus:ring-brand-sky focus:ring-offset-1 dark:border-brand-sky/50 dark:bg-brand-deep/80 dark:text-brand-paper dark:hover:bg-brand-sky/20 dark:focus:ring-brand-mist dark:focus:ring-offset-brand-deep";
     studentLinks.appendChild(link);
   });
 }

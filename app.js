@@ -148,7 +148,8 @@ uploadBtn.onclick = async () => {
       // Document data (fields must match your collection attributes).
       {
         // Link document to the uploaded storage file.
-        fileId: uploaded.$id,
+        // Collection schema expects this field as imageId.
+        imageId: uploaded.$id,
         // Track who uploaded it.
         userId: currentUser.$id,
         // Example moderation flag.
@@ -199,8 +200,14 @@ async function loadImages() {
     res.documents.forEach((doc) => {
       const img = document.createElement("img");
 
+      // Prefer schema field imageId; fallback to fileId for older records.
+      const imageId = doc.imageId || doc.fileId;
+      if (!imageId) {
+        return;
+      }
+
       // Use SDK helper to build the correct file view URL.
-      img.src = storage.getFileView(BUCKET_ID, doc.fileId);
+      img.src = storage.getFileView(BUCKET_ID, imageId);
       img.className = "rounded-xl shadow";
 
       // If a single image fails to load, hide just that image instead of breaking all.

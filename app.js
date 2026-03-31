@@ -54,16 +54,30 @@ const COLLECTION_ID = collectionId;
 // If this returns null, it usually means the element id is different or not loaded yet.
 const loginBtn = document.getElementById("loginBtn");
 
-// When the button is clicked, start Google OAuth login with Appwrite.
-loginBtn.onclick = () => {
-  // Appwrite Web SDK v13-compatible OAuth call.
-  // Use Google and return to this page on success/failure.
-  account.createOAuth2Session(
-    "google",
-    window.location.href,
-    window.location.href
-  );
-};
+// Update auth button behavior based on whether user is logged in.
+function setAuthButton() {
+  if (!loginBtn) return;
+
+  if (currentUser) {
+    loginBtn.textContent = "Log out";
+    loginBtn.onclick = async () => {
+      await account.deleteSession("current");
+      window.location.reload();
+    };
+    return;
+  }
+
+  loginBtn.textContent = "Login";
+  loginBtn.onclick = () => {
+    // Appwrite Web SDK v13-compatible OAuth call.
+    // Use Google and return to this page on success/failure.
+    account.createOAuth2Session(
+      "google",
+      window.location.href,
+      window.location.href
+    );
+  };
+}
 
 // Will store the logged-in user's profile data after we fetch it.
 // Starts as null (meaning: no user info loaded yet).
@@ -80,14 +94,16 @@ async function checkAuth() {
 
     // User is logged in: reveal upload controls.
     document.getElementById("uploadSection").classList.remove("hidden");
-    // Update button text to reflect auth state.
-    loginBtn.textContent = "Logged in";
 
   // If account.get() fails (no session, expired session, etc.), run this block.
   } catch {
     // Keep upload section hidden and log a simple debug message.
+    currentUser = null;
     console.log("Not logged in");
   }
+
+  // Ensure button always matches current auth state.
+  setAuthButton();
 }
 // Run auth check once when this script loads.
 checkAuth();
@@ -228,6 +244,9 @@ async function loadImages() {
     // Clear old images before rendering the fresh list.
     gallery.innerHTML = "";
 
+    // Build dedicated student-page links from uploadedBy field.
+    renderStudentLinks(res.documents);
+
     res.documents.forEach((doc) => {
       const img = document.createElement("img");
 
@@ -256,6 +275,28 @@ async function loadImages() {
     const detail = error && error.message ? error.message : "Unknown error";
     gallery.innerHTML = `<p class="text-sm text-gray-500">Could not load images: ${detail}</p>`;
   }
+}
+
+// Render one link per student to dedicated student gallery pages.
+function renderStudentLinks(documents) {
+  const studentLinks = document.getElementById("studentLinks");
+  if (!studentLinks) return;
+
+  studentLinks.innerHTML = "";
+
+  const students = [...new Set(documents.map((doc) => doc.uploadedBy).filter(Boolean))].sort();
+  if (students.length === 0) {
+    studentLinks.innerHTML = "<p class=\"text-sm text-gray-500\">No student pages yet.</p>";
+    return;
+  }
+
+  students.forEach((student) => {
+    const link = document.createElement("a");
+    link.href = `student.html?student=${encodeURIComponent(student)}`;
+    link.textContent = student;
+    link.className = "inline-block bg-white border px-3 py-2 rounded-xl mr-2 mb-2 hover:bg-gray-100";
+    studentLinks.appendChild(link);
+  });
 }
 
 loadImages();

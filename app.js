@@ -152,6 +152,8 @@ uploadBtn.onclick = async () => {
         imageId: uploaded.$id,
         // Human-readable image name (required by current collection schema).
         imageName: file.name,
+        // MIME type like image/png, image/jpeg (required by current schema).
+        imageType: file.type || "application/octet-stream",
         // Track who uploaded it.
         userId: currentUser.$id,
         // Example moderation flag.

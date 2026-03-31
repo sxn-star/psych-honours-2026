@@ -20,6 +20,7 @@ const storage = new Storage(client);
 const databases = new Databases(client);
 
 const loginBtn = document.getElementById("loginBtn");
+const themeToggle = document.getElementById("themeToggle");
 const studentTitle = document.getElementById("studentTitle");
 const studentSubtitle = document.getElementById("studentSubtitle");
 const studentGallery = document.getElementById("studentGallery");
@@ -33,6 +34,25 @@ const fileName = document.getElementById("fileName");
 
 let currentUser = null;
 let selectedFile = null;
+
+function setThemeButtonText() {
+  if (!themeToggle) return;
+  const isDark = document.documentElement.classList.contains("dark");
+  themeToggle.textContent = isDark ? "Light" : "Dark";
+  themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
+  themeToggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+}
+
+function initThemeToggle() {
+  if (!themeToggle) return;
+  setThemeButtonText();
+  themeToggle.onclick = () => {
+    document.documentElement.classList.toggle("dark");
+    const isDark = document.documentElement.classList.contains("dark");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+    setThemeButtonText();
+  };
+}
 
 function getStudentFromUrl() {
   const params = new URLSearchParams(window.location.search);
@@ -57,6 +77,7 @@ function getSchemaImageType(file) {
 function setAuthButton() {
   if (currentUser) {
     loginBtn.textContent = "Log out";
+    loginBtn.setAttribute("aria-label", "Log out");
     loginBtn.onclick = async () => {
       await account.deleteSession("current");
       window.location.reload();
@@ -65,6 +86,7 @@ function setAuthButton() {
   }
 
   loginBtn.textContent = "Login";
+  loginBtn.setAttribute("aria-label", "Log in with Google");
   loginBtn.onclick = () => {
     account.createOAuth2Session("google", window.location.href, window.location.href);
   };
@@ -89,16 +111,16 @@ function bindDropzoneHandlers() {
 
   dropzone.ondragover = (event) => {
     event.preventDefault();
-    dropzone.classList.add("border-black", "bg-gray-100");
+    dropzone.classList.add("border-black", "bg-gray-100", "dark:border-white", "dark:bg-gray-800");
   };
 
   dropzone.ondragleave = () => {
-    dropzone.classList.remove("border-black", "bg-gray-100");
+    dropzone.classList.remove("border-black", "bg-gray-100", "dark:border-white", "dark:bg-gray-800");
   };
 
   dropzone.ondrop = (event) => {
     event.preventDefault();
-    dropzone.classList.remove("border-black", "bg-gray-100");
+    dropzone.classList.remove("border-black", "bg-gray-100", "dark:border-white", "dark:bg-gray-800");
 
     const files = event.dataTransfer?.files;
     selectedFile = files && files.length > 0 ? files[0] : null;
@@ -186,7 +208,7 @@ async function loadStudentGallery(student) {
     studentGallery.innerHTML = "";
 
     if (res.documents.length === 0) {
-      studentGallery.innerHTML = "<p class=\"text-sm text-gray-500\">No approved uploads for this student yet.</p>";
+      studentGallery.innerHTML = "<p class=\"text-sm text-gray-500 dark:text-gray-400\">No approved uploads for this student yet.</p>";
       return;
     }
 
@@ -196,13 +218,14 @@ async function loadStudentGallery(student) {
 
       const img = document.createElement("img");
       img.src = storage.getFileView(bucketId, imageId);
-      img.className = "rounded-xl shadow";
+      img.alt = doc.imageName ? `Upload: ${doc.imageName}` : "Student upload";
+      img.className = "aspect-square w-full rounded-xl border border-gray-200 object-cover shadow-sm transition-all duration-200 ease-out hover:scale-[1.01] hover:shadow dark:border-gray-700";
       img.onerror = () => img.remove();
       studentGallery.appendChild(img);
     });
   } catch (error) {
     const detail = error && error.message ? error.message : "Unknown error";
-    studentGallery.innerHTML = `<p class=\"text-sm text-gray-500\">Could not load student gallery: ${detail}</p>`;
+    studentGallery.innerHTML = `<p class=\"text-sm text-gray-500 dark:text-gray-400\">Could not load student gallery: ${detail}</p>`;
   }
 }
 
@@ -213,13 +236,14 @@ async function bootstrap() {
     studentTitle.textContent = "Student not found";
     studentSubtitle.textContent = "Use the home page index to open a valid student page.";
     uploadSection.classList.add("hidden");
-    studentGallery.innerHTML = "<p class=\"text-sm text-gray-500\">Invalid student link.</p>";
+    studentGallery.innerHTML = "<p class=\"text-sm text-gray-500 dark:text-gray-400\">Invalid student link.</p>";
     return;
   }
 
   studentTitle.textContent = `${student.name} — Media Page`;
   studentSubtitle.textContent = `This page is dedicated to ${student.name}.`;
 
+  initThemeToggle();
   await checkAuth();
 
   if (currentUser && currentUser.$id === student.userId) {

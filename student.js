@@ -48,6 +48,18 @@ async function checkAuth() {
 
 function getStudentFromUrl() {
   const params = new URLSearchParams(window.location.search);
+  const sid = params.get("sid");
+  if (sid) {
+    try {
+      const raw = sessionStorage.getItem("studentLinkMap") || "{}";
+      const map = JSON.parse(raw);
+      return map[sid] || null;
+    } catch {
+      return null;
+    }
+  }
+
+  // Backward-compatibility for older links; avoid exposing identifier in title.
   return params.get("student");
 }
 
@@ -62,7 +74,7 @@ async function loadStudentGallery() {
     return;
   }
 
-  title.textContent = `Gallery: ${student}`;
+  title.textContent = "Student Gallery";
 
   try {
     const res = await databases.listDocuments(

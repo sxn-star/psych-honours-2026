@@ -197,8 +197,8 @@ uploadBtn.onclick = async () => {
         imageSize: file.size,
         // Datetime in ISO format for schema field uploadDate.
         uploadDate: new Date().toISOString(),
-        // Track uploader for schema field uploadedBy.
-        uploadedBy: currentUser.email || currentUser.$id,
+        // Track uploader for schema field uploadedBy (use user ID, not email).
+        uploadedBy: currentUser.$id,
         // Example moderation flag.
         approved: true
       },
@@ -290,13 +290,22 @@ function renderStudentLinks(documents) {
     return;
   }
 
-  students.forEach((student) => {
+  // Build opaque IDs for links so raw uploader identifiers are not exposed in URL/text.
+  const studentMap = {};
+
+  students.forEach((student, index) => {
+    const sid = `s${index + 1}`;
+    studentMap[sid] = student;
+
     const link = document.createElement("a");
-    link.href = `student.html?student=${encodeURIComponent(student)}`;
-    link.textContent = student;
+    link.href = `student.html?sid=${encodeURIComponent(sid)}`;
+    link.textContent = `Student ${index + 1}`;
     link.className = "inline-block bg-white border px-3 py-2 rounded-xl mr-2 mb-2 hover:bg-gray-100";
     studentLinks.appendChild(link);
   });
+
+  // Store short-link mapping for student page lookups in this browser session.
+  sessionStorage.setItem("studentLinkMap", JSON.stringify(studentMap));
 }
 
 loadImages();

@@ -156,8 +156,10 @@ uploadBtn.onclick = async () => {
         imageType: file.type || "application/octet-stream",
         // File size in bytes (required by current schema).
         imageSize: file.size,
-        // Track who uploaded it.
-        userId: currentUser.$id,
+        // Datetime in ISO format for schema field uploadDate.
+        uploadDate: new Date().toISOString(),
+        // Track uploader for schema field uploadedBy.
+        uploadedBy: currentUser.email || currentUser.$id,
         // Example moderation flag.
         approved: true
       },

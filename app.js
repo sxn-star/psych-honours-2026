@@ -154,6 +154,8 @@ uploadBtn.onclick = async () => {
         imageName: file.name,
         // MIME type like image/png, image/jpeg (required by current schema).
         imageType: file.type || "application/octet-stream",
+        // File size in bytes (required by current schema).
+        imageSize: file.size,
         // Track who uploaded it.
         userId: currentUser.$id,
         // Example moderation flag.

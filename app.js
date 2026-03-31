@@ -95,6 +95,23 @@ checkAuth();
 // Get the Upload button from the page.
 const uploadBtn = document.getElementById("uploadBtn");
 
+// Convert browser file info to the exact enum values expected by collection schema.
+// Current allowed values in Appwrite schema: png, jpg, pdf.
+function getSchemaImageType(file) {
+  const mime = String(file.type || "").toLowerCase();
+  if (mime === "image/png") return "png";
+  if (mime === "image/jpeg") return "jpg";
+  if (mime === "application/pdf") return "pdf";
+
+  // Fallback to file extension when MIME is missing or unusual.
+  const name = String(file.name || "").toLowerCase();
+  if (name.endsWith(".png")) return "png";
+  if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "jpg";
+  if (name.endsWith(".pdf")) return "pdf";
+
+  return null;
+}
+
 // Run this function when user clicks Upload.
 // async is needed because file upload/database calls take time.
 uploadBtn.onclick = async () => {
@@ -107,6 +124,12 @@ uploadBtn.onclick = async () => {
 
   // Guard clause: stop immediately if user did not pick a file.
   if (!file) return alert("Select a file");
+
+  // Match Appwrite enum requirement before uploading.
+  const schemaImageType = getSchemaImageType(file);
+  if (!schemaImageType) {
+    return alert("Unsupported file type. Allowed: png, jpg, pdf.");
+  }
 
   // Keep reference in case we need cleanup if step 2 fails.
   let uploadedFileId = null;
@@ -152,8 +175,8 @@ uploadBtn.onclick = async () => {
         imageId: uploaded.$id,
         // Human-readable image name (required by current collection schema).
         imageName: file.name,
-        // MIME type like image/png, image/jpeg (required by current schema).
-        imageType: file.type || "application/octet-stream",
+        // Enum value required by current schema (png, jpg, pdf).
+        imageType: schemaImageType,
         // File size in bytes (required by current schema).
         imageSize: file.size,
         // Datetime in ISO format for schema field uploadDate.

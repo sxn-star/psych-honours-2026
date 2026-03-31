@@ -1,4 +1,5 @@
-import { Client, Account, Storage, Databases, Query } from "https://cdn.jsdelivr.net/npm/appwrite@13.0.0/+esm";
+import { Client, Account, Storage, Databases, ID, Query, Permission, Role } from "https://cdn.jsdelivr.net/npm/appwrite@13.0.0/+esm";
+import { students, findStudentBySlug } from "./students.js";
 
 const appConfig = window.APP_CONFIG;
 if (!appConfig) {
@@ -19,7 +20,39 @@ const storage = new Storage(client);
 const databases = new Databases(client);
 
 const loginBtn = document.getElementById("loginBtn");
+const studentTitle = document.getElementById("studentTitle");
+const studentSubtitle = document.getElementById("studentSubtitle");
+const studentGallery = document.getElementById("studentGallery");
+
+const uploadSection = document.getElementById("uploadSection");
+const dropzone = document.getElementById("dropzone");
+const fileInput = document.getElementById("fileInput");
+const chooseFileBtn = document.getElementById("chooseFileBtn");
+const uploadBtn = document.getElementById("uploadBtn");
+const fileName = document.getElementById("fileName");
+
 let currentUser = null;
+let selectedFile = null;
+
+function getStudentFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const slug = params.get("student");
+  return findStudentBySlug(slug);
+}
+
+function getSchemaImageType(file) {
+  const mime = String(file.type || "").toLowerCase();
+  if (mime === "image/png") return "png";
+  if (mime === "image/jpeg") return "jpg";
+  if (mime === "application/pdf") return "pdf";
+
+  const name = String(file.name || "").toLowerCase();
+  if (name.endsWith(".png")) return "png";
+  if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "jpg";
+  if (name.endsWith(".pdf")) return "pdf";
+
+  return null;
+}
 
 function setAuthButton() {
   if (currentUser) {
@@ -46,50 +79,114 @@ async function checkAuth() {
   setAuthButton();
 }
 
-function getStudentFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  const sid = params.get("sid");
-  if (sid) {
-    try {
-      const raw = sessionStorage.getItem("studentLinkMap") || "{}";
-      const map = JSON.parse(raw);
-      return map[sid] || null;
-    } catch {
-      return null;
-    }
-  }
+function bindDropzoneHandlers() {
+  chooseFileBtn.onclick = () => fileInput.click();
 
-  // Backward-compatibility for older links; avoid exposing identifier in title.
-  return params.get("student");
+  fileInput.onchange = () => {
+    selectedFile = fileInput.files[0] || null;
+    fileName.textContent = selectedFile ? selectedFile.name : "";
+  };
+
+  dropzone.ondragover = (event) => {
+    event.preventDefault();
+    dropzone.classList.add("border-black", "bg-gray-100");
+  };
+
+  dropzone.ondragleave = () => {
+    dropzone.classList.remove("border-black", "bg-gray-100");
+  };
+
+  dropzone.ondrop = (event) => {
+    event.preventDefault();
+    dropzone.classList.remove("border-black", "bg-gray-100");
+
+    const files = event.dataTransfer?.files;
+    selectedFile = files && files.length > 0 ? files[0] : null;
+    fileName.textContent = selectedFile ? selectedFile.name : "";
+  };
 }
 
-async function loadStudentGallery() {
-  const student = getStudentFromUrl();
-  const title = document.getElementById("studentTitle");
-  const gallery = document.getElementById("studentGallery");
+async function uploadForStudent(student) {
+  if (!currentUser) return alert("Please log in first");
 
-  if (!student) {
-    title.textContent = "Student not specified";
-    gallery.innerHTML = "<p class=\"text-sm text-gray-500\">Use a student link from the home page.</p>";
-    return;
+  // Enforce: only the matching student account can upload to this student page.
+  if (currentUser.$id !== student.userId) {
+    return alert("You can only upload media to your own student page.");
   }
 
-  title.textContent = "Student Gallery";
+  if (!selectedFile) return alert("Choose or drop a file first.");
 
+  const imageType = getSchemaImageType(selectedFile);
+  if (!imageType) {
+    return alert("Unsupported file type. Allowed: png, jpg, pdf.");
+  }
+
+  let uploadedFileId = null;
+
+  try {
+    const ownerPermissions = [
+      Permission.read(Role.any()),
+      Permission.update(Role.user(currentUser.$id)),
+      Permission.delete(Role.user(currentUser.$id))
+    ];
+
+    const uploaded = await storage.createFile(
+      bucketId,
+      ID.unique(),
+      selectedFile,
+      ownerPermissions
+    );
+    uploadedFileId = uploaded.$id;
+
+    await databases.createDocument(
+      databaseId,
+      collectionId,
+      ID.unique(),
+      {
+        imageId: uploaded.$id,
+        imageName: selectedFile.name,
+        imageType,
+        imageSize: selectedFile.size,
+        uploadDate: new Date().toISOString(),
+        uploadedBy: currentUser.$id,
+        approved: true
+      },
+      ownerPermissions
+    );
+
+    selectedFile = null;
+    fileInput.value = "";
+    fileName.textContent = "";
+
+    await loadStudentGallery(student);
+  } catch (error) {
+    if (uploadedFileId) {
+      try {
+        await storage.deleteFile(bucketId, uploadedFileId);
+      } catch {
+      }
+    }
+
+    const detail = error && error.message ? error.message : "Unknown error";
+    alert(`Upload failed: ${detail}`);
+  }
+}
+
+async function loadStudentGallery(student) {
   try {
     const res = await databases.listDocuments(
       databaseId,
       collectionId,
       [
         Query.equal("approved", true),
-        Query.equal("uploadedBy", student)
+        Query.equal("uploadedBy", student.userId)
       ]
     );
 
-    gallery.innerHTML = "";
+    studentGallery.innerHTML = "";
 
     if (res.documents.length === 0) {
-      gallery.innerHTML = "<p class=\"text-sm text-gray-500\">No approved uploads for this student yet.</p>";
+      studentGallery.innerHTML = "<p class=\"text-sm text-gray-500\">No approved uploads for this student yet.</p>";
       return;
     }
 
@@ -101,13 +198,40 @@ async function loadStudentGallery() {
       img.src = storage.getFileView(bucketId, imageId);
       img.className = "rounded-xl shadow";
       img.onerror = () => img.remove();
-      gallery.appendChild(img);
+      studentGallery.appendChild(img);
     });
   } catch (error) {
     const detail = error && error.message ? error.message : "Unknown error";
-    gallery.innerHTML = `<p class=\"text-sm text-gray-500\">Could not load student gallery: ${detail}</p>`;
+    studentGallery.innerHTML = `<p class=\"text-sm text-gray-500\">Could not load student gallery: ${detail}</p>`;
   }
 }
 
-await checkAuth();
-await loadStudentGallery();
+async function bootstrap() {
+  const student = getStudentFromUrl();
+
+  if (!student) {
+    studentTitle.textContent = "Student not found";
+    studentSubtitle.textContent = "Use the home page index to open a valid student page.";
+    uploadSection.classList.add("hidden");
+    studentGallery.innerHTML = "<p class=\"text-sm text-gray-500\">Invalid student link.</p>";
+    return;
+  }
+
+  studentTitle.textContent = `${student.name} — Media Page`;
+  studentSubtitle.textContent = `This page is dedicated to ${student.name}.`;
+
+  await checkAuth();
+
+  if (currentUser && currentUser.$id === student.userId) {
+    uploadSection.classList.remove("hidden");
+  } else {
+    uploadSection.classList.add("hidden");
+  }
+
+  bindDropzoneHandlers();
+  uploadBtn.onclick = () => uploadForStudent(student);
+
+  await loadStudentGallery(student);
+}
+
+await bootstrap();

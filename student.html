@@ -15,10 +15,24 @@
 
   <main class="max-w-5xl mx-auto p-6">
     <h1 id="studentTitle" class="text-2xl font-semibold mb-4">Student Gallery</h1>
+    <p id="studentSubtitle" class="text-sm text-gray-600 mb-6"></p>
+
+    <section id="uploadSection" class="hidden mb-8">
+      <h2 class="text-lg font-medium mb-3">Upload media</h2>
+      <div id="dropzone" class="border-2 border-dashed border-gray-300 rounded-2xl p-6 bg-white text-center mb-3">
+        <p class="text-sm text-gray-600 mb-3">Drop PNG/JPG/PDF here</p>
+        <button id="chooseFileBtn" class="bg-black text-white px-4 py-2 rounded-xl">Choose file</button>
+        <input id="fileInput" type="file" accept=".png,.jpg,.jpeg,.pdf" class="hidden" />
+        <p id="fileName" class="text-xs text-gray-500 mt-3"></p>
+      </div>
+      <button id="uploadBtn" class="bg-black text-white px-4 py-2 rounded-xl">Upload</button>
+    </section>
+
     <div id="studentGallery" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
   </main>
 
   <script src="config.local.js"></script>
+  <script type="module" src="students.js"></script>
   <script type="module" src="student.js"></script>
 </body>
 </html>

@@ -150,6 +150,8 @@ uploadBtn.onclick = async () => {
         // Link document to the uploaded storage file.
         // Collection schema expects this field as imageId.
         imageId: uploaded.$id,
+        // Human-readable image name (required by current collection schema).
+        imageName: file.name,
         // Track who uploaded it.
         userId: currentUser.$id,
         // Example moderation flag.

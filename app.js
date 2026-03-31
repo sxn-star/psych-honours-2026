@@ -108,6 +108,9 @@ uploadBtn.onclick = async () => {
   // Guard clause: stop immediately if user did not pick a file.
   if (!file) return alert("Select a file");
 
+  // Keep reference in case we need cleanup if step 2 fails.
+  let uploadedFileId = null;
+
   // try/catch keeps the UI responsive if upload or database write fails.
   try {
     // Build permissions using Appwrite's helper syntax (docs style).
@@ -132,6 +135,7 @@ uploadBtn.onclick = async () => {
       // File permissions.
       ownerPermissions
     );
+    uploadedFileId = uploaded.$id;
 
     // Step 2: Save metadata in the database (separate from the file itself).
     // This lets you query/filter records without reading raw storage directly.
@@ -160,8 +164,18 @@ uploadBtn.onclick = async () => {
     // Log technical details for debugging.
     console.error("Upload failed:", error);
 
-    // Show clear feedback to the user.
-    alert("Upload failed. Please try again.");
+    // If the file was uploaded but metadata failed, try to clean up orphan file.
+    if (uploadedFileId) {
+      try {
+        await storage.deleteFile(BUCKET_ID, uploadedFileId);
+      } catch (cleanupError) {
+        console.error("Cleanup failed (orphan file may remain):", cleanupError);
+      }
+    }
+
+    // Show the actual Appwrite message to make debugging easier.
+    const detail = error && error.message ? error.message : "Unknown error";
+    alert(`Upload failed: ${detail}`);
   }
 };
 
@@ -200,8 +214,9 @@ async function loadImages() {
     // Log technical details for debugging.
     console.error("Failed to load gallery images:", error);
 
-    // Show a simple user-facing message instead of leaving a blank area.
-    gallery.innerHTML = "<p class=\"text-sm text-gray-500\">Could not load images right now.</p>";
+    // Show error detail to help identify permissions/schema issues.
+    const detail = error && error.message ? error.message : "Unknown error";
+    gallery.innerHTML = `<p class="text-sm text-gray-500">Could not load images: ${detail}</p>`;
   }
 }
 

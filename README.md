@@ -14,6 +14,10 @@
 6. Open `index.html` (or run a local static server).
 
 `config.local.js` and `.env` are ignored by Git and should never be committed.
+Set `APPWRITE_ALLOWED_DOMAIN` to the student email domain, and `APPWRITE_ADMIN_EMAILS` to a comma-separated list of admin emails that may log in but should not receive a student page.
+Set `APPWRITE_STUDENT_PAGES_COLLECTION_ID` to the Appwrite collection that stores student page records. If you leave it unset, the homepage falls back to the static seed list.
+Set `APPWRITE_STUDENTS_TEAM_ID` to the team that all student-domain accounts should be auto-assigned into.
+See [docs/appwrite-student-pages.md](docs/appwrite-student-pages.md) for the exact Appwrite schema and permissions to create.
 
 ## Deploy on Appwrite Sites (GitHub source)
 
@@ -36,12 +40,19 @@ Add these in your Appwrite Site environment settings:
 - `APPWRITE_BUCKET_ID` = your storage bucket id
 - `APPWRITE_DATABASE_ID` = your database id
 - `APPWRITE_COLLECTION_ID` = your collection id
+- `APPWRITE_STUDENT_PAGES_COLLECTION_ID` = collection id for student page records
+- `APPWRITE_STUDENTS_TEAM_ID` = team id for student-domain accounts
+- `APPWRITE_ALLOWED_DOMAIN` = student email domain, for example `students.example.edu`
+- `APPWRITE_ADMIN_EMAILS` = optional comma-separated admin emails, for example `admin@example.edu`
 
 ### Important security notes
 
 - Do **not** store server API keys in this frontend project.
 - Project/database/bucket/collection IDs are configuration values for the client app.
 - Access control is enforced by your Appwrite permissions and auth rules.
+- Google OAuth logins from the allowed domain get an automatically provisioned personal page in Appwrite account prefs and the student-pages collection.
+- Student-domain users can be auto-assigned to a shared students team for team-based resource permissions.
+- Admin emails can still log in, but the app will not auto-create a student page for them.
 - `git-secrets` is enabled in this repo as an extra commit-time protection layer.
 
 ## App flow diagram
@@ -51,8 +62,8 @@ flowchart TD
 	A[Page loads] --> B[Load config.local.js]
 	B --> C[Initialize Appwrite client]
 	C --> D[Run checkAuth]
-	D -->|Logged in| E[Show upload section]
-	D -->|Not logged in| F[Keep upload section hidden]
+	D -->|Student login| E[Create or load personal page record]
+	D -->|Admin/other login| F[Keep personal page hidden]
 	E --> G[User selects file and clicks Upload]
 	F --> H[User clicks Login]
 	H --> I[Google OAuth redirect]
@@ -99,5 +110,8 @@ Set these function environment variables:
 - `APPWRITE_PROJECT_ID` = your project id
 - `APPWRITE_API_KEY` = API key with user read/write scopes (set as secret)
 - `ALLOWED_DOMAIN` = allowed email domain (example: `example.org`)
+- `ADMIN_EMAILS` = optional comma-separated admin emails that should be labeled as `role:admin`
+- `STUDENTS_TEAM_ID` = team id for automatic student membership assignment
+- `STUDENT_TEAM_ROLES` = optional comma-separated roles for new team memberships (default: `student`)
 
 Add a user-created event trigger so the function labels new users automatically.

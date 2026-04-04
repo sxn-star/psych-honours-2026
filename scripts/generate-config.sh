@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# This script converts environment variables into config.local.js,
+# This script converts environment variables into runtime-config.js,
 # which the browser can read via window.APP_CONFIG.
 #
 # Why this exists:
@@ -10,7 +10,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="${1:-$ROOT_DIR/.env}"
-OUT_FILE="$ROOT_DIR/config.local.js"
+OUT_FILE="$ROOT_DIR/runtime-config.js"
 
 # Load .env if present (local dev). In CI/Appwrite builds, variables can be
 # provided directly via environment settings, so missing .env is acceptable.

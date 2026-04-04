@@ -10,7 +10,7 @@ import {
 
 const appConfig = window.APP_CONFIG;
 if (!appConfig) {
-  throw new Error("Missing APP_CONFIG. Create config.local.js from config.example.js before running the app.");
+  throw new Error("Missing APP_CONFIG. Create runtime-config.js from config.example.js before running the app.");
 }
 
 const {

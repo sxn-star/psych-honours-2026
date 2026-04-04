@@ -13,7 +13,7 @@
 	- `./scripts/generate-config.sh`
 6. Open `index.html` (or run a local static server).
 
-`config.local.js` and `.env` are ignored by Git and should never be committed.
+`runtime-config.js` and `.env` are ignored by Git and should never be committed.
 Set `APPWRITE_STUDENT_PAGES_COLLECTION_ID` to the Appwrite collection that stores student page records. If you leave it unset, the homepage falls back to the static seed list.
 Set `APPWRITE_STUDENTS_TEAM_ID` to the team that all student-domain accounts should be auto-assigned into.
 See [docs/appwrite-student-pages.md](docs/appwrite-student-pages.md) for the exact Appwrite schema and permissions to create.
@@ -40,7 +40,7 @@ Add these in your Appwrite Site environment settings:
 - `APPWRITE_DATABASE_ID` = your database id
 - `APPWRITE_COLLECTION_ID` = your collection id
 - `APPWRITE_STUDENT_PAGES_COLLECTION_ID` = collection id for student page records
-- `APPWRITE_STUDENTS_TEAM_ID` = team id for student-domain accounts
+	- `APPWRITE_STUDENTS_TEAM_ID` = team id for student-domain accounts
 
 ### Important security notes
 
@@ -56,7 +56,7 @@ Add these in your Appwrite Site environment settings:
 
 ```mermaid
 flowchart TD
-	A[Page loads] --> B[Load config.local.js]
+	A[Page loads] --> B[Load runtime-config.js]
 	B --> C[Initialize Appwrite client]
 	C --> D[Run checkAuth]
 	D -->|Student login| E[Create or load personal page record]
@@ -79,8 +79,8 @@ flowchart TD
 flowchart LR
 	LENV["Local .env (ignored)"] --> GEN["generate-config.sh"]
 	SITEENV["Appwrite Site environment variables"] --> GEN
-	GEN --> RUNTIMECFG["config.local.js (ignored)"]
-	RUNTIMECFG --> HTML["index.html loads config.local.js"]
+	GEN --> RUNTIMECFG["runtime-config.js (ignored)"]
+	RUNTIMECFG --> HTML["index.html loads runtime-config.js"]
 	HTML --> APP["app.js reads window.APP_CONFIG"]
 	APP --> API["Connect to Appwrite APIs"]
 

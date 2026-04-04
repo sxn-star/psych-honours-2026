@@ -9,7 +9,7 @@ import {
 
 const appConfig = window.APP_CONFIG;
 if (!appConfig) {
-  throw new Error("Missing APP_CONFIG. Create config.local.js from config.example.js before running the app.");
+  throw new Error("Missing APP_CONFIG. Create runtime-config.js from config.example.js before running the app.");
 }
 
 const {
@@ -20,7 +20,7 @@ const {
 } = appConfig;
 
 if (!projectId) {
-  throw new Error("APP_CONFIG is incomplete. Set projectId in config.local.js");
+  throw new Error("APP_CONFIG is incomplete. Set projectId in runtime-config.js");
 }
 
 const client = new Client().setEndpoint(endpoint).setProject(projectId);

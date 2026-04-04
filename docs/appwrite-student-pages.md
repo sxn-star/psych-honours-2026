@@ -57,6 +57,6 @@ Set `APPWRITE_STUDENT_PAGES_COLLECTION_ID` to the collection ID you create here.
 Set `APPWRITE_STUDENTS_TEAM_ID` if you want read access scoped to the students team.
 Set `STUDENTS_TEAM_ID` and optionally `STUDENT_TEAM_ROLES` in the Appwrite Function so student-domain users are assigned automatically.
 
-Do not put policy values like allowed email domain or admin emails in `config.local.js`; those belong only in the function environment.
+Do not put policy values like allowed email domain or admin emails in `runtime-config.js`; those belong only in the function environment.
 
 If you leave it unset, the app falls back to the static student list in `students.js`, which is useful for local development before the Appwrite collection exists.

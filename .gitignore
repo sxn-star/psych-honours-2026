@@ -1,4 +1,5 @@
 # Local app config (contains project-specific values)
+config.local.js
 runtime-config.js
 
 # Optional env files

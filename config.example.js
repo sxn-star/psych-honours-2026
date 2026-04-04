@@ -7,7 +7,5 @@ window.APP_CONFIG = {
 	databaseId: "YOUR_DB_ID",
 	collectionId: "YOUR_COLLECTION_ID",
 	studentPagesCollectionId: "YOUR_STUDENT_PAGES_COLLECTION_ID",
-	studentsTeamId: "YOUR_STUDENTS_TEAM_ID",
-	allowedDomain: "students.example.edu",
-	adminEmails: "admin@example.edu"
+	studentsTeamId: "YOUR_STUDENTS_TEAM_ID"
 };

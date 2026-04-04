@@ -14,7 +14,6 @@
 6. Open `index.html` (or run a local static server).
 
 `config.local.js` and `.env` are ignored by Git and should never be committed.
-Set `APPWRITE_ALLOWED_DOMAIN` to the student email domain, and `APPWRITE_ADMIN_EMAILS` to a comma-separated list of admin emails that may log in but should not receive a student page.
 Set `APPWRITE_STUDENT_PAGES_COLLECTION_ID` to the Appwrite collection that stores student page records. If you leave it unset, the homepage falls back to the static seed list.
 Set `APPWRITE_STUDENTS_TEAM_ID` to the team that all student-domain accounts should be auto-assigned into.
 See [docs/appwrite-student-pages.md](docs/appwrite-student-pages.md) for the exact Appwrite schema and permissions to create.
@@ -42,17 +41,15 @@ Add these in your Appwrite Site environment settings:
 - `APPWRITE_COLLECTION_ID` = your collection id
 - `APPWRITE_STUDENT_PAGES_COLLECTION_ID` = collection id for student page records
 - `APPWRITE_STUDENTS_TEAM_ID` = team id for student-domain accounts
-- `APPWRITE_ALLOWED_DOMAIN` = student email domain, for example `students.example.edu`
-- `APPWRITE_ADMIN_EMAILS` = optional comma-separated admin emails, for example `admin@example.edu`
 
 ### Important security notes
 
 - Do **not** store server API keys in this frontend project.
 - Project/database/bucket/collection IDs are configuration values for the client app.
 - Access control is enforced by your Appwrite permissions and auth rules.
-- Google OAuth logins from the allowed domain get an automatically provisioned personal page in Appwrite account prefs and the student-pages collection.
-- Student-domain users can be auto-assigned to a shared students team for team-based resource permissions.
-- Admin emails can still log in, but the app will not auto-create a student page for them.
+- Google OAuth logins labeled as `role:student` get an automatically provisioned personal page in Appwrite account prefs and the student-pages collection.
+- Student users can be auto-assigned to a shared students team for team-based resource permissions.
+- Admin users are labeled `role:admin` and do not get a student page.
 - `git-secrets` is enabled in this repo as an extra commit-time protection layer.
 
 ## App flow diagram

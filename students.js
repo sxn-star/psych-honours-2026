@@ -31,24 +31,6 @@ function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
 
-function getConfiguredAllowedDomain() {
-  return normalizeEmail(getAppConfig().allowedDomain || "");
-}
-
-function getConfiguredAdminEmails() {
-  const appConfig = getAppConfig();
-  const configuredValue = appConfig.adminEmails ?? appConfig.adminEmail ?? "";
-
-  if (Array.isArray(configuredValue)) {
-    return configuredValue.map(normalizeEmail).filter(Boolean);
-  }
-
-  return String(configuredValue)
-    .split(",")
-    .map((email) => normalizeEmail(email))
-    .filter(Boolean);
-}
-
 function getEmailDomain(email) {
   const normalizedEmail = normalizeEmail(email);
   const atIndex = normalizedEmail.lastIndexOf("@");
@@ -69,15 +51,7 @@ export function isAdminAccount(user) {
   const labels = getUserLabels(user);
   if (labels.has("role:admin")) return true;
 
-  return getConfiguredAdminEmails().includes(email);
-}
-
-export function isAllowedDomainAccount(user) {
-  const allowedDomain = getConfiguredAllowedDomain();
-  if (!allowedDomain) return false;
-
-  const emailDomain = getEmailDomain(user?.email);
-  return emailDomain === allowedDomain;
+  return false;
 }
 
 export function isGoogleOAuthSession(session) {
@@ -85,7 +59,8 @@ export function isGoogleOAuthSession(session) {
 }
 
 export function canAutoCreateStudentPage(user, session) {
-  return isGoogleOAuthSession(session) && isAllowedDomainAccount(user) && !isAdminAccount(user);
+  const labels = getUserLabels(user);
+  return isGoogleOAuthSession(session) && labels.has("role:student") && !isAdminAccount(user);
 }
 
 function toSlugSegment(value) {

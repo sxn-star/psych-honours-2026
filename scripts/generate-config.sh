@@ -34,7 +34,6 @@ required_vars=(
   APPWRITE_BUCKET_ID
   APPWRITE_DATABASE_ID
   APPWRITE_COLLECTION_ID
-  APPWRITE_ALLOWED_DOMAIN
 )
 
 for var in "${required_vars[@]}"; do
@@ -54,9 +53,7 @@ window.APP_CONFIG = {
   databaseId: "${APPWRITE_DATABASE_ID}",
   collectionId: "${APPWRITE_COLLECTION_ID}",
   studentPagesCollectionId: "${APPWRITE_STUDENT_PAGES_COLLECTION_ID:-}",
-  studentsTeamId: "${APPWRITE_STUDENTS_TEAM_ID:-}",
-  allowedDomain: "${APPWRITE_ALLOWED_DOMAIN}",
-  adminEmails: "${APPWRITE_ADMIN_EMAILS:-}"
+  studentsTeamId: "${APPWRITE_STUDENTS_TEAM_ID:-}"
 };
 EOF
 

@@ -23,12 +23,12 @@
   </header>
 
   <main class="mx-auto w-full max-w-7xl p-4 sm:p-6 md:p-8 lg:px-8">
-    <section class="mb-6 rounded-3xl border border-brand-sky/40 bg-brand-paper/95 p-5 shadow-sm transition-shadow duration-200 ease-out hover:shadow sm:p-7 dark:border-brand-sky/40 dark:bg-brand-deep/80">
+    <section class="pop-reveal mb-6 rounded-3xl border border-brand-sky/40 bg-brand-paper/95 p-5 shadow-sm transition-shadow duration-200 ease-out hover:shadow sm:p-7 dark:border-brand-sky/40 dark:bg-brand-deep/80" style="--reveal-delay: 40ms;">
       <h1 id="studentTitle" class="mb-2 text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">Student Showcase</h1>
       <p id="studentSubtitle" class="max-w-2xl text-sm leading-relaxed text-brand-deep/85 dark:text-brand-mist/85"></p>
     </section>
 
-    <section id="uploadSection" class="hidden mb-6 rounded-2xl border border-brand-sky/40 bg-brand-paper p-4 shadow-sm transition-shadow duration-200 ease-out hover:shadow sm:mb-8 sm:p-6 dark:border-brand-sky/40 dark:bg-brand-deep/80">
+    <section id="uploadSection" class="pop-reveal hidden mb-6 rounded-2xl border border-brand-sky/40 bg-brand-paper p-4 shadow-sm transition-shadow duration-200 ease-out hover:shadow sm:mb-8 sm:p-6 dark:border-brand-sky/40 dark:bg-brand-deep/80" style="--reveal-delay: 110ms;">
       <h2 class="mb-3 inline-flex items-center gap-2 text-lg font-semibold tracking-tight"><svg class="h-5 w-5 text-brand-sky" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m3 15.75 4.5-4.5 4.5 4.5M7.5 11.25V21"/><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 7.5h6m-3-3v6"/></svg>Upload media</h2>
       <div id="dropzone" role="region" aria-label="File upload dropzone" class="mb-3 rounded-2xl border-2 border-dashed border-brand-sky/70 bg-brand-mist p-5 text-center sm:p-6 dark:border-brand-sky dark:bg-brand-deep/70">
         <p class="mb-3 inline-flex items-center gap-2 text-sm leading-relaxed text-brand-deep/85 dark:text-brand-mist/90"><svg class="h-4 w-4 text-brand-sky" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5A4.5 4.5 0 0 0 7.5 21h9A4.5 4.5 0 0 0 21 16.5a4.5 4.5 0 0 0-3.6-4.41A6 6 0 1 0 6.15 9.84 4.5 4.5 0 0 0 3 16.5Z"/></svg>Drop PNG/JPG/PDF here</p>
@@ -39,7 +39,7 @@
       <button id="uploadBtn" type="button" class="inline-flex items-center gap-2 rounded-xl bg-brand-deep px-4 py-2 text-sm font-medium text-brand-paper transition-all duration-200 ease-out hover:bg-brand-sky hover:text-brand-deep hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky focus-visible:ring-offset-1 active:scale-[0.99] dark:bg-brand-sky dark:text-brand-deep dark:hover:bg-brand-mist dark:focus-visible:ring-brand-mist dark:focus-visible:ring-offset-brand-deep"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m3 15.75 4.5-4.5 4.5 4.5M7.5 11.25V21"/><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 7.5h6m-3-3v6"/></svg>Upload</button>
     </section>
 
-    <section class="rounded-2xl border border-brand-sky/40 bg-brand-paper p-4 shadow-sm transition-shadow duration-200 ease-out hover:shadow sm:p-5 dark:border-brand-sky/40 dark:bg-brand-deep/80">
+    <section class="pop-reveal rounded-2xl border border-brand-sky/40 bg-brand-paper p-4 shadow-sm transition-shadow duration-200 ease-out hover:shadow sm:p-5 dark:border-brand-sky/40 dark:bg-brand-deep/80" style="--reveal-delay: 170ms;">
       <h2 class="mb-3 inline-flex items-center gap-2 text-lg font-semibold tracking-tight"><svg class="h-5 w-5 text-brand-sky" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 7.5A2.25 2.25 0 0 1 6 5.25h12A2.25 2.25 0 0 1 20.25 7.5v9A2.25 2.25 0 0 1 18 18.75H6a2.25 2.25 0 0 1-2.25-2.25v-9Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 14.25 2.25-2.25 1.5 1.5 2.25-2.25 1.5 1.5"/></svg>Uploaded Media</h2>
       <p class="mb-4 text-sm leading-relaxed text-brand-deep/75 dark:text-brand-mist/80">Select a poster to open a full-screen view. Use Escape to close.</p>
       <div id="studentGallery" aria-live="polite" class="grid grid-cols-1 gap-6"></div>

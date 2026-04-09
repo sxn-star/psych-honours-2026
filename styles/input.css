@@ -9,3 +9,51 @@
 @tailwind components;
 /* Utility classes like p-4, rounded-xl, text-gray-900, etc. */
 @tailwind utilities;
+
+@layer utilities {
+	.pop-reveal {
+		opacity: 0;
+		transform: translateY(16px) scale(0.985);
+		filter: saturate(0.92);
+	}
+
+	.pop-reveal.is-visible {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+		filter: saturate(1);
+		transition:
+			opacity 520ms cubic-bezier(0.22, 1, 0.36, 1),
+			transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+			filter 520ms cubic-bezier(0.22, 1, 0.36, 1);
+		transition-delay: var(--reveal-delay, 0ms);
+	}
+
+	.tilt-lift {
+		transform-style: preserve-3d;
+		will-change: transform, box-shadow;
+		transition:
+			transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+			box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.tilt-lift:hover {
+		transform: translateY(-4px) rotateX(1.8deg) rotateY(-1.8deg);
+		box-shadow: 0 18px 35px -24px rgba(84, 107, 121, 0.7);
+	}
+
+	.float-ambient {
+		animation: ambient-float 13s ease-in-out infinite;
+	}
+}
+
+@keyframes ambient-float {
+	0%,
+	100% {
+		transform: translateY(0) scale(1);
+		opacity: 0.88;
+	}
+	50% {
+		transform: translateY(-10px) scale(1.06);
+		opacity: 1;
+	}
+}

@@ -55,6 +55,14 @@ function iconLabel(iconSvg, text) {
   return `<span class="inline-flex items-center gap-2">${iconSvg}<span>${text}</span></span>`;
 }
 
+function revealElements(root = document) {
+  const elements = root.querySelectorAll(".pop-reveal:not(.is-visible)");
+  if (elements.length === 0) return;
+  requestAnimationFrame(() => {
+    elements.forEach((element) => element.classList.add("is-visible"));
+  });
+}
+
 const sessionChoice = createSessionChoiceOverlay();
 const lightbox = createPosterLightbox();
 
@@ -437,7 +445,7 @@ async function loadStudentGallery(student) {
       return;
     }
 
-    res.documents.forEach((doc) => {
+    res.documents.forEach((doc, index) => {
       const imageId = doc.imageId || doc.fileId;
       if (!imageId) return;
 
@@ -447,7 +455,8 @@ async function loadStudentGallery(student) {
       const isPdf = isPdfDocument(doc, posterName);
       const posterAlt = doc.imageName ? `Poster: ${doc.imageName}` : "Student poster";
       const card = document.createElement("article");
-      card.className = "group overflow-hidden rounded-2xl border border-brand-sky/40 bg-brand-mist shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow dark:border-brand-sky/50 dark:bg-brand-deep/70";
+      card.className = "pop-reveal tilt-lift group overflow-hidden rounded-2xl border border-brand-sky/40 bg-brand-mist shadow-sm transition-all duration-200 ease-out hover:shadow dark:border-brand-sky/50 dark:bg-brand-deep/70";
+      card.style.setProperty("--reveal-delay", `${Math.min(40 + index * 55, 520)}ms`);
 
       const posterIndex = posterItems.length;
       posterItems.push({
@@ -508,6 +517,8 @@ async function loadStudentGallery(student) {
       card.appendChild(caption);
       studentGallery.appendChild(card);
     });
+
+    revealElements(studentGallery);
   } catch (error) {
     const detail = error && error.message ? error.message : "Unknown error";
     studentGallery.innerHTML = `<p class=\"text-sm text-brand-deep/75 dark:text-brand-mist/80\">Could not load student gallery: ${detail}</p>`;
@@ -570,6 +581,7 @@ async function bootstrap() {
   uploadBtn.onclick = () => uploadForStudent(student);
 
   await loadStudentGallery(student);
+  revealElements(document);
 }
 
 await bootstrap();

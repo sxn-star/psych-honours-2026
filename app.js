@@ -28,6 +28,7 @@ const onboardingSection = document.getElementById("onboardingSection");
 const onboardingForm = document.getElementById("onboardingForm");
 const fullNameInput = document.getElementById("fullNameInput");
 const onboardingStatus = document.getElementById("onboardingStatus");
+const welcomeRotator = document.getElementById("welcomeRotator");
 
 let currentUser = null;
 let currentStudentPage = null;
@@ -46,6 +47,39 @@ const ICONS = {
 
 function iconLabel(iconSvg, text) {
   return `<span class="inline-flex items-center gap-2">${iconSvg}<span>${text}</span></span>`;
+}
+
+function revealElements(root = document) {
+  const elements = root.querySelectorAll(".pop-reveal:not(.is-visible)");
+  if (elements.length === 0) return;
+  requestAnimationFrame(() => {
+    elements.forEach((element) => element.classList.add("is-visible"));
+  });
+}
+
+function initWelcomeRotator() {
+  if (!welcomeRotator) return;
+  const messages = [
+    "Discover emerging student research in minutes.",
+    "Browse posters, methods, and findings from this cohort.",
+    "Tap any name to step into their research story.",
+    "Use the gallery like an interactive mini-conference."
+  ];
+
+  let index = 0;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  welcomeRotator.textContent = messages[index];
+
+  if (reduceMotion || messages.length < 2) return;
+
+  setInterval(() => {
+    index = (index + 1) % messages.length;
+    welcomeRotator.classList.add("opacity-0", "translate-y-1");
+    setTimeout(() => {
+      welcomeRotator.textContent = messages[index];
+      welcomeRotator.classList.remove("opacity-0", "translate-y-1");
+    }, 220);
+  }, 4200);
 }
 
 const sessionChoice = createSessionChoiceOverlay();
@@ -221,9 +255,12 @@ function renderStudentIndex(filterText = "") {
     const link = document.createElement("a");
     link.href = `student.html?student=${encodeURIComponent(student.slug)}`;
     link.innerHTML = `${ICONS.page}<span>${student.name}</span>`;
-    link.className = "mb-2 flex items-center gap-2 rounded-xl border border-brand-sky/40 bg-brand-paper px-4 py-3.5 text-[15px] font-medium leading-6 text-brand-deep shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-mist hover:shadow focus:outline-none focus:ring-2 focus:ring-brand-sky focus:ring-offset-1 dark:border-brand-sky/50 dark:bg-brand-deep/80 dark:text-brand-paper dark:hover:bg-brand-sky/20 dark:focus:ring-brand-mist dark:focus:ring-offset-brand-deep";
+    link.className = "pop-reveal tilt-lift mb-2 flex items-center gap-2 rounded-xl border border-brand-sky/40 bg-brand-paper px-4 py-3.5 text-[15px] font-medium leading-6 text-brand-deep shadow-sm transition-all duration-200 ease-out hover:bg-brand-mist hover:shadow focus:outline-none focus:ring-2 focus:ring-brand-sky focus:ring-offset-1 dark:border-brand-sky/50 dark:bg-brand-deep/80 dark:text-brand-paper dark:hover:bg-brand-sky/20 dark:focus:ring-brand-mist dark:focus:ring-offset-brand-deep";
+    link.style.setProperty("--reveal-delay", `${Math.min(30 + (studentLinks.children.length * 40), 420)}ms`);
     studentLinks.appendChild(link);
   });
+
+  revealElements(studentLinks);
 }
 
 async function loadStudentIndexPages() {
@@ -298,6 +335,7 @@ function bindOnboardingForm() {
 
 async function bootstrap() {
   initThemeToggle();
+  initWelcomeRotator();
   bindOnboardingForm();
   bindSessionChoice();
 
@@ -321,6 +359,7 @@ async function bootstrap() {
   }
 
   renderStudentIndex();
+  revealElements(document);
 }
 
 if (searchInput) {

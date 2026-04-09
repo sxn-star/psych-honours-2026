@@ -1,5 +1,5 @@
-import { Client, Account } from "https://cdn.jsdelivr.net/npm/appwrite@13.0.0/+esm";
-import { students } from "./students.js";
+import { Client, Account, Databases } from "https://cdn.jsdelivr.net/npm/appwrite@13.0.0/+esm";
+import { claimStudentPageForUser, listStudentPages, resolveCurrentStudentPage } from "./student-pages.js";
 
 const appConfig = window.APP_CONFIG;
 if (!appConfig) {
@@ -8,7 +8,8 @@ if (!appConfig) {
 
 const {
   endpoint = "https://cloud.appwrite.io/v1",
-  projectId
+  projectId,
+  databaseId
 } = appConfig;
 
 if (!projectId) {
@@ -17,13 +18,21 @@ if (!projectId) {
 
 const client = new Client().setEndpoint(endpoint).setProject(projectId);
 const account = new Account(client);
+const databases = new Databases(client);
 
 const loginBtn = document.getElementById("loginBtn");
 const themeToggle = document.getElementById("themeToggle");
 const searchInput = document.getElementById("studentSearch");
 const studentLinks = document.getElementById("studentLinks");
+const onboardingSection = document.getElementById("onboardingSection");
+const onboardingForm = document.getElementById("onboardingForm");
+const fullNameInput = document.getElementById("fullNameInput");
+const onboardingStatus = document.getElementById("onboardingStatus");
 
 let currentUser = null;
+let currentStudentPage = null;
+let studentPages = [];
+let isRedirecting = false;
 
 function setThemeButtonText() {
   if (!themeToggle) return;
@@ -42,6 +51,20 @@ function initThemeToggle() {
     localStorage.setItem("theme", isDark ? "dark" : "light");
     setThemeButtonText();
   };
+}
+
+function setOnboardingState(visible, message = "") {
+  if (onboardingSection) {
+    onboardingSection.classList.toggle("hidden", !visible);
+  }
+
+  if (onboardingStatus) {
+    onboardingStatus.textContent = message;
+  }
+
+  if (visible && fullNameInput && currentUser?.name && !fullNameInput.value.trim()) {
+    fullNameInput.value = currentUser.name;
+  }
 }
 
 function setAuthButton() {
@@ -77,9 +100,7 @@ function renderStudentIndex(filterText = "") {
   if (!studentLinks) return;
 
   const normalizedFilter = filterText.trim().toLowerCase();
-  const filtered = students.filter((student) =>
-    student.name.toLowerCase().includes(normalizedFilter)
-  );
+  const filtered = studentPages.filter((student) => student.name.toLowerCase().includes(normalizedFilter));
 
   studentLinks.innerHTML = "";
 
@@ -97,12 +118,101 @@ function renderStudentIndex(filterText = "") {
   });
 }
 
+async function loadStudentIndexPages() {
+  studentPages = await listStudentPages({
+    databases,
+    databaseId,
+    appConfig
+  });
+}
+
+async function routeLoggedInUser() {
+  currentStudentPage = await resolveCurrentStudentPage({
+    account,
+    databases,
+    databaseId,
+    appConfig
+  });
+
+  if (currentStudentPage) {
+    isRedirecting = true;
+    setOnboardingState(false, "");
+    window.location.replace(`student.html?student=${encodeURIComponent(currentStudentPage.slug)}`);
+    return true;
+  }
+
+  if (currentUser && appConfig.studentPagesCollectionId) {
+    setOnboardingState(true, "Enter your full name once to create your page.");
+  } else {
+    setOnboardingState(false, "");
+  }
+
+  return false;
+}
+
+function bindOnboardingForm() {
+  if (!onboardingForm || !fullNameInput) return;
+
+  onboardingForm.onsubmit = async (event) => {
+    event.preventDefault();
+
+    if (!currentUser) {
+      setOnboardingState(true, "Please log in first.");
+      return;
+    }
+
+    const fullName = fullNameInput.value;
+    if (!fullName.trim()) {
+      setOnboardingState(true, "Enter your full name to continue.");
+      fullNameInput.focus();
+      return;
+    }
+
+    if (onboardingStatus) {
+      onboardingStatus.textContent = "Creating your page...";
+    }
+
+    try {
+      const studentPage = await claimStudentPageForUser({
+        account,
+        databases,
+        databaseId,
+        appConfig,
+        fullName
+      });
+
+      isRedirecting = true;
+      window.location.replace(`student.html?student=${encodeURIComponent(studentPage.slug)}`);
+    } catch (error) {
+      const detail = error && error.message ? error.message : "Unknown error";
+      setOnboardingState(true, `Could not create your page: ${detail}`);
+    }
+  };
+}
+
+async function bootstrap() {
+  initThemeToggle();
+  bindOnboardingForm();
+
+  await checkAuth();
+  await loadStudentIndexPages();
+
+  if (currentUser) {
+    const didRedirect = await routeLoggedInUser();
+    if (didRedirect || isRedirecting) {
+      return;
+    }
+  } else {
+    setOnboardingState(false, "");
+  }
+
+  renderStudentIndex();
+}
+
 if (searchInput) {
   searchInput.addEventListener("input", (event) => {
     renderStudentIndex(event.target.value);
   });
 }
 
-initThemeToggle();
-await checkAuth();
-renderStudentIndex();
+await bootstrap();

@@ -22,3 +22,8 @@ export function findStudentBySlug(slug) {
   if (!slug) return null;
   return students.find((student) => student.slug === slug) || null;
 }
+
+export function findStudentByUserId(userId) {
+	if (!userId) return null;
+	return students.find((student) => student.userId === userId) || null;
+}

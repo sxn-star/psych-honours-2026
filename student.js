@@ -1,5 +1,5 @@
 import { Client, Account, Storage, Databases, ID, Query, Permission, Role } from "https://cdn.jsdelivr.net/npm/appwrite@13.0.0/+esm";
-import { students, findStudentBySlug } from "./students.js";
+import { findStudentPageBySlug, resolveCurrentStudentPage } from "./student-pages.js";
 
 const appConfig = window.APP_CONFIG;
 if (!appConfig) {
@@ -52,12 +52,6 @@ function initThemeToggle() {
     localStorage.setItem("theme", isDark ? "dark" : "light");
     setThemeButtonText();
   };
-}
-
-function getStudentFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  const slug = params.get("student");
-  return findStudentBySlug(slug);
 }
 
 function getSchemaImageType(file) {
@@ -229,8 +223,24 @@ async function loadStudentGallery(student) {
   }
 }
 
+async function getStudentFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const slug = params.get("student");
+
+  if (!slug) {
+    return null;
+  }
+
+  return findStudentPageBySlug({
+    databases,
+    databaseId,
+    appConfig,
+    slug
+  });
+}
+
 async function bootstrap() {
-  const student = getStudentFromUrl();
+  const student = await getStudentFromUrl();
 
   if (!student) {
     studentTitle.textContent = "Student not found";
@@ -245,6 +255,18 @@ async function bootstrap() {
 
   initThemeToggle();
   await checkAuth();
+
+  const currentStudentPage = await resolveCurrentStudentPage({
+    account,
+    databases,
+    databaseId,
+    appConfig
+  });
+
+  if (currentUser && currentStudentPage && currentStudentPage.slug !== student.slug) {
+    window.location.replace(`student.html?student=${encodeURIComponent(currentStudentPage.slug)}`);
+    return;
+  }
 
   if (currentUser && currentUser.$id === student.userId) {
     uploadSection.classList.remove("hidden");

@@ -36,6 +36,7 @@ Add these in your Appwrite Site environment settings:
 - `APPWRITE_BUCKET_ID` = your storage bucket id
 - `APPWRITE_DATABASE_ID` = your database id
 - `APPWRITE_COLLECTION_ID` = your collection id
+- `APPWRITE_STUDENT_PAGES_COLLECTION_ID` = the collection that stores student page records
 
 ### Important security notes
 
@@ -44,6 +45,17 @@ Add these in your Appwrite Site environment settings:
 - Access control is enforced by your Appwrite permissions and auth rules.
 - `git-secrets` is enabled in this repo as an extra commit-time protection layer.
 
+## Student Pages Collection Setup
+
+To enable first-login onboarding (where students enter their name once and get a personal page):
+
+1. Read [docs/appwrite-student-pages.md](docs/appwrite-student-pages.md) for detailed setup steps.
+2. Create a collection in Appwrite with the specified attributes and indexes.
+3. Set `APPWRITE_STUDENT_PAGES_COLLECTION_ID` in your environment.
+4. Deploy and test login flow.
+
+**Without this collection:** The app falls back to the static student list in `students.js`.
+
 ## App flow diagram
 
 ```mermaid
@@ -51,18 +63,23 @@ flowchart TD
 	A[Page loads] --> B[Load config.local.js]
 	B --> C[Initialize Appwrite client]
 	C --> D[Run checkAuth]
-	D -->|Logged in| E[Show upload section]
-	D -->|Not logged in| F[Keep upload section hidden]
-	E --> G[User selects file and clicks Upload]
-	F --> H[User clicks Login]
-	H --> I[Google OAuth redirect]
-	I --> A
-	G --> J[Upload file to Storage]
-	J --> K[Create metadata document in Database]
-	K --> L[Run loadImages]
-	A --> L
-	L --> M[Query approved documents]
-	M --> N[Render image grid]
+	D -->|Logged in with page| E[Redirect to student page]
+	D -->|Logged in without page| F[Show name prompt once]
+	D -->|Not logged in| G[Keep upload section hidden]
+	F --> H[Create or claim student page]
+	H --> I[Store page slug in account prefs]
+	I --> E
+	G --> J[User clicks Login]
+	J --> K[Google OAuth redirect]
+	K --> A
+	E --> L[Show upload section]
+	L --> M[User selects file and clicks Upload]
+	M --> N[Upload file to Storage]
+	N --> O[Create metadata document in Database]
+	O --> P[Run loadStudentGallery]
+	A --> P
+	P --> Q[Query approved documents]
+	Q --> R[Render image grid]
 ```
 
 ## Config and secret-safe flow

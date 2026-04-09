@@ -51,7 +51,8 @@ window.APP_CONFIG = {
   projectId: "${APPWRITE_PROJECT_ID}",
   bucketId: "${APPWRITE_BUCKET_ID}",
   databaseId: "${APPWRITE_DATABASE_ID}",
-  collectionId: "${APPWRITE_COLLECTION_ID}"
+  collectionId: "${APPWRITE_COLLECTION_ID}",
+  studentPagesCollectionId: "${APPWRITE_STUDENT_PAGES_COLLECTION_ID:-}"
 };
 EOF
 

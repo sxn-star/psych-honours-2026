@@ -34,6 +34,114 @@ const fileName = document.getElementById("fileName");
 
 let currentUser = null;
 let selectedFile = null;
+let posterItems = [];
+let activePosterIndex = -1;
+
+const lightbox = createPosterLightbox();
+
+function createPosterLightbox() {
+  const overlay = document.createElement("div");
+  overlay.className = "fixed inset-0 z-50 hidden bg-brand-deep/90 p-3 sm:p-6";
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
+  overlay.setAttribute("aria-label", "Poster viewer");
+
+  const shell = document.createElement("div");
+  shell.className = "mx-auto flex h-full w-full max-w-7xl flex-col";
+
+  const controls = document.createElement("div");
+  controls.className = "mb-3 flex items-center justify-between gap-2";
+
+  const nav = document.createElement("div");
+  nav.className = "flex items-center gap-2";
+
+  const prevButton = document.createElement("button");
+  prevButton.type = "button";
+  prevButton.className = "rounded-xl border border-brand-mist/60 px-3 py-2 text-sm font-medium text-brand-paper transition hover:bg-brand-mist/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-mist";
+  prevButton.textContent = "Previous";
+  prevButton.onclick = () => showPosterAtIndex(activePosterIndex - 1);
+
+  const nextButton = document.createElement("button");
+  nextButton.type = "button";
+  nextButton.className = "rounded-xl border border-brand-mist/60 px-3 py-2 text-sm font-medium text-brand-paper transition hover:bg-brand-mist/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-mist";
+  nextButton.textContent = "Next";
+  nextButton.onclick = () => showPosterAtIndex(activePosterIndex + 1);
+
+  nav.appendChild(prevButton);
+  nav.appendChild(nextButton);
+
+  const closeButton = document.createElement("button");
+  closeButton.type = "button";
+  closeButton.className = "rounded-xl border border-brand-mist/60 px-3 py-2 text-sm font-medium text-brand-paper transition hover:bg-brand-mist/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-mist";
+  closeButton.textContent = "Close";
+  closeButton.onclick = closePosterLightbox;
+
+  controls.appendChild(nav);
+  controls.appendChild(closeButton);
+
+  const stage = document.createElement("div");
+  stage.className = "relative min-h-0 flex-1 overflow-hidden rounded-2xl border border-brand-mist/30 bg-brand-paper/5";
+
+  const image = document.createElement("img");
+  image.className = "h-full w-full object-contain p-2 sm:p-4";
+  image.alt = "Selected poster";
+  image.loading = "eager";
+
+  const caption = document.createElement("p");
+  caption.className = "mt-3 text-sm text-brand-mist/95";
+
+  stage.appendChild(image);
+  shell.appendChild(controls);
+  shell.appendChild(stage);
+  shell.appendChild(caption);
+  overlay.appendChild(shell);
+
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) {
+      closePosterLightbox();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (overlay.classList.contains("hidden")) return;
+    if (event.key === "Escape") closePosterLightbox();
+    if (event.key === "ArrowRight") showPosterAtIndex(activePosterIndex + 1);
+    if (event.key === "ArrowLeft") showPosterAtIndex(activePosterIndex - 1);
+  });
+
+  document.body.appendChild(overlay);
+
+  return {
+    overlay,
+    image,
+    caption,
+    prevButton,
+    nextButton,
+    closeButton
+  };
+}
+
+function closePosterLightbox() {
+  lightbox.overlay.classList.add("hidden");
+  lightbox.image.src = "";
+  activePosterIndex = -1;
+}
+
+function showPosterAtIndex(index) {
+  if (!posterItems.length) return;
+
+  const normalizedIndex = (index + posterItems.length) % posterItems.length;
+  const poster = posterItems[normalizedIndex];
+
+  activePosterIndex = normalizedIndex;
+  lightbox.overlay.classList.remove("hidden");
+  lightbox.image.src = poster.src;
+  lightbox.image.alt = poster.alt;
+  lightbox.caption.textContent = poster.name;
+  lightbox.prevButton.disabled = posterItems.length < 2;
+  lightbox.nextButton.disabled = posterItems.length < 2;
+  lightbox.closeButton.focus();
+}
 
 function setThemeButtonText() {
   if (!themeToggle) return;
@@ -200,6 +308,7 @@ async function loadStudentGallery(student) {
     );
 
     studentGallery.innerHTML = "";
+    posterItems = [];
 
     if (res.documents.length === 0) {
       studentGallery.innerHTML = "<p class=\"text-sm text-brand-deep/75 dark:text-brand-mist/80\">No approved uploads for this student yet.</p>";
@@ -210,26 +319,56 @@ async function loadStudentGallery(student) {
       const imageId = doc.imageId || doc.fileId;
       if (!imageId) return;
 
-      const link = document.createElement("a");
-      link.href = storage.getFileView(bucketId, imageId);
-      link.target = "_blank";
-      link.rel = "noreferrer";
-      link.className = "group block overflow-hidden rounded-2xl border border-brand-sky/40 bg-brand-mist shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow dark:border-brand-sky/50 dark:bg-brand-deep/70";
+      const src = storage.getFileView(bucketId, imageId);
+      const posterName = doc.imageName || "Student poster";
+      const posterAlt = doc.imageName ? `Poster: ${doc.imageName}` : "Student poster";
+      const card = document.createElement("article");
+      card.className = "group overflow-hidden rounded-2xl border border-brand-sky/40 bg-brand-mist shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow dark:border-brand-sky/50 dark:bg-brand-deep/70";
 
       const img = document.createElement("img");
-      img.src = storage.getFileView(bucketId, imageId);
-      img.alt = doc.imageName ? `Poster: ${doc.imageName}` : "Student poster";
+      img.src = src;
+      img.alt = posterAlt;
       img.className = "h-[32rem] w-full object-contain bg-white p-3 sm:h-[42rem] lg:h-[52rem]";
       img.loading = "lazy";
-      img.onerror = () => link.remove();
+      img.tabIndex = 0;
+      img.role = "button";
+      img.setAttribute("aria-label", `Open ${posterName} in full-screen viewer`);
+      img.onerror = () => card.remove();
+
+      const posterIndex = posterItems.length;
+      posterItems.push({
+        src,
+        alt: posterAlt,
+        name: posterName
+      });
+
+      img.onclick = () => showPosterAtIndex(posterIndex);
+      img.onkeydown = (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          showPosterAtIndex(posterIndex);
+        }
+      };
 
       const caption = document.createElement("div");
-      caption.className = "border-t border-brand-sky/30 bg-brand-paper px-4 py-3 text-sm text-brand-deep/80 dark:border-brand-sky/40 dark:bg-brand-deep/90 dark:text-brand-mist/85";
-      caption.textContent = doc.imageName || "Student poster";
+      caption.className = "flex items-center justify-between gap-3 border-t border-brand-sky/30 bg-brand-paper px-4 py-3 text-sm text-brand-deep/80 dark:border-brand-sky/40 dark:bg-brand-deep/90 dark:text-brand-mist/85";
 
-      link.appendChild(img);
-      link.appendChild(caption);
-      studentGallery.appendChild(link);
+      const nameText = document.createElement("span");
+      nameText.textContent = posterName;
+
+      const openOriginal = document.createElement("a");
+      openOriginal.href = src;
+      openOriginal.target = "_blank";
+      openOriginal.rel = "noreferrer";
+      openOriginal.className = "shrink-0 rounded-lg border border-brand-sky/50 px-2.5 py-1.5 text-xs font-medium transition hover:bg-brand-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky dark:border-brand-sky/60 dark:hover:bg-brand-sky/20";
+      openOriginal.textContent = "Open original";
+
+      caption.appendChild(nameText);
+      caption.appendChild(openOriginal);
+
+      card.appendChild(img);
+      card.appendChild(caption);
+      studentGallery.appendChild(card);
     });
   } catch (error) {
     const detail = error && error.message ? error.message : "Unknown error";

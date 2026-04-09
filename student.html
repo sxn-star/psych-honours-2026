@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Student Showcase</title>
   <script>
     if (localStorage.getItem("theme") === "dark") {
@@ -40,6 +41,7 @@
 
     <section class="rounded-2xl border border-brand-sky/40 bg-brand-paper p-4 shadow-sm transition-shadow duration-200 ease-out hover:shadow sm:p-5 dark:border-brand-sky/40 dark:bg-brand-deep/80">
       <h2 class="mb-3 text-lg font-semibold tracking-tight">Uploaded Media</h2>
+      <p class="mb-4 text-sm leading-relaxed text-brand-deep/75 dark:text-brand-mist/80">Select a poster to open a full-screen view. Use Escape to close.</p>
       <div id="studentGallery" aria-live="polite" class="grid grid-cols-1 gap-6"></div>
     </section>
   </main>

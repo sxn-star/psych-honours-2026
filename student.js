@@ -87,10 +87,15 @@ function createPosterLightbox() {
   image.alt = "Selected poster";
   image.loading = "eager";
 
+  const pdfFrame = document.createElement("iframe");
+  pdfFrame.className = "hidden h-full w-full bg-white";
+  pdfFrame.title = "Selected PDF poster";
+
   const caption = document.createElement("p");
   caption.className = "mt-3 text-sm text-brand-mist/95";
 
   stage.appendChild(image);
+  stage.appendChild(pdfFrame);
   shell.appendChild(controls);
   shell.appendChild(stage);
   shell.appendChild(caption);
@@ -114,6 +119,7 @@ function createPosterLightbox() {
   return {
     overlay,
     image,
+    pdfFrame,
     caption,
     prevButton,
     nextButton,
@@ -124,6 +130,7 @@ function createPosterLightbox() {
 function closePosterLightbox() {
   lightbox.overlay.classList.add("hidden");
   lightbox.image.src = "";
+  lightbox.pdfFrame.src = "";
   activePosterIndex = -1;
 }
 
@@ -135,12 +142,28 @@ function showPosterAtIndex(index) {
 
   activePosterIndex = normalizedIndex;
   lightbox.overlay.classList.remove("hidden");
-  lightbox.image.src = poster.src;
-  lightbox.image.alt = poster.alt;
+  if (poster.type === "pdf") {
+    lightbox.image.classList.add("hidden");
+    lightbox.image.src = "";
+    lightbox.pdfFrame.classList.remove("hidden");
+    lightbox.pdfFrame.src = `${poster.src}#view=FitH`;
+  } else {
+    lightbox.pdfFrame.classList.add("hidden");
+    lightbox.pdfFrame.src = "";
+    lightbox.image.classList.remove("hidden");
+    lightbox.image.src = poster.src;
+    lightbox.image.alt = poster.alt;
+  }
   lightbox.caption.textContent = poster.name;
   lightbox.prevButton.disabled = posterItems.length < 2;
   lightbox.nextButton.disabled = posterItems.length < 2;
   lightbox.closeButton.focus();
+}
+
+function isPdfDocument(doc, fileName) {
+  const schemaType = String(doc.imageType || "").toLowerCase();
+  if (schemaType === "pdf") return true;
+  return fileName.toLowerCase().endsWith(".pdf");
 }
 
 function setThemeButtonText() {
@@ -321,34 +344,45 @@ async function loadStudentGallery(student) {
 
       const src = storage.getFileView(bucketId, imageId);
       const posterName = doc.imageName || "Student poster";
+      const isPdf = isPdfDocument(doc, posterName);
       const posterAlt = doc.imageName ? `Poster: ${doc.imageName}` : "Student poster";
       const card = document.createElement("article");
       card.className = "group overflow-hidden rounded-2xl border border-brand-sky/40 bg-brand-mist shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow dark:border-brand-sky/50 dark:bg-brand-deep/70";
 
-      const img = document.createElement("img");
-      img.src = src;
-      img.alt = posterAlt;
-      img.className = "h-[32rem] w-full object-contain bg-white p-3 sm:h-[42rem] lg:h-[52rem]";
-      img.loading = "lazy";
-      img.tabIndex = 0;
-      img.role = "button";
-      img.setAttribute("aria-label", `Open ${posterName} in full-screen viewer`);
-      img.onerror = () => card.remove();
-
       const posterIndex = posterItems.length;
       posterItems.push({
+        type: isPdf ? "pdf" : "image",
         src,
         alt: posterAlt,
         name: posterName
       });
 
-      img.onclick = () => showPosterAtIndex(posterIndex);
-      img.onkeydown = (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          showPosterAtIndex(posterIndex);
-        }
-      };
+      if (isPdf) {
+        const pdfFrame = document.createElement("iframe");
+        pdfFrame.src = `${src}#view=FitH`;
+        pdfFrame.className = "h-[32rem] w-full bg-white sm:h-[42rem] lg:h-[52rem]";
+        pdfFrame.title = `Preview ${posterName}`;
+        pdfFrame.loading = "lazy";
+        card.appendChild(pdfFrame);
+      } else {
+        const img = document.createElement("img");
+        img.src = src;
+        img.alt = posterAlt;
+        img.className = "h-[32rem] w-full object-contain bg-white p-3 sm:h-[42rem] lg:h-[52rem]";
+        img.loading = "lazy";
+        img.tabIndex = 0;
+        img.role = "button";
+        img.setAttribute("aria-label", `Open ${posterName} in full-screen viewer`);
+        img.onerror = () => card.remove();
+        img.onclick = () => showPosterAtIndex(posterIndex);
+        img.onkeydown = (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            showPosterAtIndex(posterIndex);
+          }
+        };
+        card.appendChild(img);
+      }
 
       const caption = document.createElement("div");
       caption.className = "flex items-center justify-between gap-3 border-t border-brand-sky/30 bg-brand-paper px-4 py-3 text-sm text-brand-deep/80 dark:border-brand-sky/40 dark:bg-brand-deep/90 dark:text-brand-mist/85";
@@ -363,10 +397,16 @@ async function loadStudentGallery(student) {
       openOriginal.className = "shrink-0 rounded-lg border border-brand-sky/50 px-2.5 py-1.5 text-xs font-medium transition hover:bg-brand-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky dark:border-brand-sky/60 dark:hover:bg-brand-sky/20";
       openOriginal.textContent = "Open original";
 
+      const openViewer = document.createElement("button");
+      openViewer.type = "button";
+      openViewer.className = "shrink-0 rounded-lg border border-brand-sky/50 px-2.5 py-1.5 text-xs font-medium transition hover:bg-brand-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky dark:border-brand-sky/60 dark:hover:bg-brand-sky/20";
+      openViewer.textContent = "Full-screen";
+      openViewer.onclick = () => showPosterAtIndex(posterIndex);
+
       caption.appendChild(nameText);
+      caption.appendChild(openViewer);
       caption.appendChild(openOriginal);
 
-      card.appendChild(img);
       card.appendChild(caption);
       studentGallery.appendChild(card);
     });

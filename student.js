@@ -37,7 +37,88 @@ let selectedFile = null;
 let posterItems = [];
 let activePosterIndex = -1;
 
+const sessionChoice = createSessionChoiceOverlay();
 const lightbox = createPosterLightbox();
+
+function createSessionChoiceOverlay() {
+  const overlay = document.createElement("div");
+  overlay.className = "fixed inset-0 z-50 hidden items-center justify-center bg-brand-deep/70 px-4";
+
+  const panel = document.createElement("div");
+  panel.className = "w-full max-w-xl rounded-3xl border border-brand-sky/40 bg-brand-paper p-6 shadow-lg dark:border-brand-sky/50 dark:bg-brand-deep";
+
+  const title = document.createElement("h2");
+  title.className = "text-xl font-semibold tracking-tight text-brand-deep dark:text-brand-paper";
+  title.textContent = "Welcome";
+
+  const subtitle = document.createElement("p");
+  subtitle.className = "mt-2 text-sm leading-relaxed text-brand-deep/80 dark:text-brand-mist/85";
+  subtitle.textContent = "Choose how you want to continue.";
+
+  const actions = document.createElement("div");
+  actions.className = "mt-5 grid gap-3 sm:grid-cols-2";
+
+  const guestButton = document.createElement("button");
+  guestButton.type = "button";
+  guestButton.className = "rounded-xl border border-brand-sky/60 px-4 py-3 text-sm font-medium text-brand-deep transition hover:bg-brand-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky dark:border-brand-sky dark:text-brand-paper dark:hover:bg-brand-sky/20 dark:focus-visible:ring-brand-mist";
+  guestButton.textContent = "Continue as Guest";
+
+  const studentButton = document.createElement("button");
+  studentButton.type = "button";
+  studentButton.className = "rounded-xl bg-brand-deep px-4 py-3 text-sm font-medium text-brand-paper transition hover:bg-brand-sky hover:text-brand-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky dark:bg-brand-sky dark:text-brand-deep dark:hover:bg-brand-mist dark:focus-visible:ring-brand-mist";
+  studentButton.textContent = "I am a Student";
+
+  const status = document.createElement("p");
+  status.className = "mt-4 text-sm text-brand-deep/80 dark:text-brand-mist/85";
+  status.setAttribute("aria-live", "polite");
+
+  actions.appendChild(guestButton);
+  actions.appendChild(studentButton);
+  panel.appendChild(title);
+  panel.appendChild(subtitle);
+  panel.appendChild(actions);
+  panel.appendChild(status);
+  overlay.appendChild(panel);
+  document.body.appendChild(overlay);
+
+  studentButton.onclick = () => {
+    status.textContent = "Redirecting to student login...";
+    account.createOAuth2Session("google", window.location.href, window.location.href);
+  };
+
+  guestButton.onclick = async () => {
+    guestButton.disabled = true;
+    studentButton.disabled = true;
+    status.textContent = "Starting guest session...";
+
+    try {
+      await account.createAnonymousSession();
+      window.location.reload();
+    } catch (error) {
+      const detail = error && error.message ? error.message : "Unknown error";
+      status.textContent = `Could not create guest session: ${detail}`;
+      guestButton.disabled = false;
+      studentButton.disabled = false;
+    }
+  };
+
+  return {
+    overlay,
+    status
+  };
+}
+
+function showSessionChoiceOverlay() {
+  sessionChoice.overlay.classList.remove("hidden");
+  sessionChoice.overlay.classList.add("flex");
+  sessionChoice.status.textContent = "";
+}
+
+function hideSessionChoiceOverlay() {
+  sessionChoice.overlay.classList.add("hidden");
+  sessionChoice.overlay.classList.remove("flex");
+  sessionChoice.status.textContent = "";
+}
 
 function createPosterLightbox() {
   const overlay = document.createElement("div");
@@ -449,17 +530,18 @@ async function bootstrap() {
   initThemeToggle();
   await checkAuth();
 
+  if (!currentUser) {
+    showSessionChoiceOverlay();
+  } else {
+    hideSessionChoiceOverlay();
+  }
+
   const currentStudentPage = await resolveCurrentStudentPage({
     account,
     databases,
     databaseId,
     appConfig
   });
-
-  if (currentUser && currentStudentPage && currentStudentPage.slug !== student.slug) {
-    window.location.replace(`student.html?student=${encodeURIComponent(currentStudentPage.slug)}`);
-    return;
-  }
 
   if (currentUser && currentUser.$id === student.userId) {
     uploadSection.classList.remove("hidden");

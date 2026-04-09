@@ -268,7 +268,7 @@ function isPdfDocument(doc, fileName) {
 function setThemeButtonText() {
   if (!themeToggle) return;
   const isDark = document.documentElement.classList.contains("dark");
-  themeToggle.innerHTML = isDark ? iconLabel(ICONS.sun, "Light") : iconLabel(ICONS.moon, "Dark");
+  themeToggle.innerHTML = isDark ? ICONS.sun : ICONS.moon;
   themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
   themeToggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
 }
@@ -443,6 +443,7 @@ async function loadStudentGallery(student) {
 
       const src = storage.getFileView(bucketId, imageId);
       const posterName = doc.imageName || "Student poster";
+      const posterDisplayName = "Poster preview";
       const isPdf = isPdfDocument(doc, posterName);
       const posterAlt = doc.imageName ? `Poster: ${doc.imageName}` : "Student poster";
       const card = document.createElement("article");
@@ -453,7 +454,7 @@ async function loadStudentGallery(student) {
         type: isPdf ? "pdf" : "image",
         src,
         alt: posterAlt,
-        name: posterName
+        name: posterDisplayName
       });
 
       if (isPdf) {
@@ -484,10 +485,7 @@ async function loadStudentGallery(student) {
       }
 
       const caption = document.createElement("div");
-      caption.className = "flex items-center justify-between gap-3 border-t border-brand-sky/30 bg-brand-paper px-4 py-3 text-sm text-brand-deep/80 dark:border-brand-sky/40 dark:bg-brand-deep/90 dark:text-brand-mist/85";
-
-      const nameText = document.createElement("span");
-      nameText.textContent = posterName;
+      caption.className = "flex items-center justify-end gap-3 border-t border-brand-sky/30 bg-brand-paper px-4 py-3 text-sm text-brand-deep/80 dark:border-brand-sky/40 dark:bg-brand-deep/90 dark:text-brand-mist/85";
 
       const openOriginal = document.createElement("a");
       openOriginal.href = src;
@@ -504,7 +502,6 @@ async function loadStudentGallery(student) {
       openViewer.classList.add("inline-flex", "items-center", "gap-1.5");
       openViewer.onclick = () => showPosterAtIndex(posterIndex);
 
-      caption.appendChild(nameText);
       caption.appendChild(openViewer);
       caption.appendChild(openOriginal);
 

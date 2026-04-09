@@ -250,8 +250,8 @@ async function bootstrap() {
     return;
   }
 
-  studentTitle.textContent = `${student.name} — Media Page`;
-  studentSubtitle.textContent = `This page is dedicated to ${student.name}.`;
+  studentTitle.textContent = `${student.name}`;
+  studentSubtitle.textContent = `This page is dedicated to ${student.name}'s research.`;
 
   initThemeToggle();
   await checkAuth();

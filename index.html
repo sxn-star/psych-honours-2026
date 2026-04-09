@@ -27,8 +27,8 @@
 		<!-- Centers content and limits width (max-w-5xl) -->
 		<div class="mx-auto flex max-w-5xl flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
 			<div>
-				<h1 class="text-lg font-semibold tracking-tight sm:text-xl md:text-2xl">Student Media Hub</h1>
-				<p class="text-xs text-brand-deep/75 dark:text-brand-mist/80">Psych Honours 2026</p>
+				<h1 class="text-lg font-semibold tracking-tight sm:text-xl md:text-2xl">Student Research Showcase</h1>
+				<p class="text-xs text-brand-deep/75 dark:text-brand-mist/80">Honours Psychology 2026</p>
 			</div>
 
 			<!--
@@ -56,8 +56,8 @@
 	<!-- MAIN: welcome page content -->
 	<main class="mx-auto max-w-5xl p-4 sm:p-6 md:p-8">
 		<section class="mb-6 rounded-3xl border border-brand-sky/40 bg-brand-paper/95 p-5 shadow-sm transition-shadow duration-200 ease-out hover:shadow sm:mb-8 sm:p-7 dark:border-brand-sky/40 dark:bg-brand-deep/80">
-			<h2 class="mb-2 text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">Welcome</h2>
-			<p class="mb-2 max-w-2xl text-base leading-relaxed text-brand-deep/90 sm:text-lg dark:text-brand-mist">Browse dedicated student pages and view approved uploads.</p>
+			<h2 class="mb-2 text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">Welcome to the 2026 Honours Psychology Research Showcase</h2>
+			<p class="mb-2 max-w-2xl text-base leading-relaxed text-brand-deep/90 sm:text-lg dark:text-brand-mist">Browse student pages and view their work!</p>
 			<p class="max-w-2xl text-sm leading-relaxed text-brand-deep/80 dark:text-brand-mist/85">Use the search bar below to quickly find a student page.</p>
 		</section>
 
@@ -66,7 +66,7 @@
 			<p class="max-w-2xl text-sm leading-relaxed text-brand-deep/85 dark:text-brand-mist/85">Enter your full name once. The site will create your personal page and remember it for future logins.</p>
 			<form id="onboardingForm" class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
 				<label class="flex-1">
-					<span class="mb-2 block text-sm font-medium tracking-wide text-brand-deep dark:text-brand-mist">Full name</span>
+					<span class="mb-2 block text-sm font-medium tracking-wide text-brand-deep dark:text-brand-mist">Full Name</span>
 					<input id="fullNameInput" type="text" autocomplete="name" placeholder="e.g. Alex Morgan" class="w-full rounded-xl border border-brand-sky/70 bg-brand-paper px-4 py-3 text-[15px] leading-6 text-brand-deep shadow-sm transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-brand-sky focus:ring-offset-1 dark:border-brand-sky dark:bg-brand-deep dark:text-brand-paper dark:focus:ring-brand-mist dark:focus:ring-offset-brand-deep" />
 				</label>
 				<button type="submit" class="rounded-xl bg-brand-deep px-4 py-3 text-sm font-medium text-brand-paper shadow-sm transition-all duration-200 ease-out hover:bg-brand-sky hover:text-brand-deep hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky focus-visible:ring-offset-1 active:scale-[0.99] dark:bg-brand-sky dark:text-brand-deep dark:hover:bg-brand-mist dark:focus-visible:ring-brand-mist dark:focus-visible:ring-offset-brand-deep">Create page</button>
@@ -75,7 +75,7 @@
 		</section>
 
 		<section class="mb-5 rounded-2xl border border-brand-sky/40 bg-brand-paper p-4 shadow-sm transition-shadow duration-200 ease-out hover:shadow sm:mb-6 sm:p-5 dark:border-brand-sky/40 dark:bg-brand-deep/80">
-			<label for="studentSearch" class="mb-2 block text-sm font-medium tracking-wide text-brand-deep dark:text-brand-mist">Search student pages</label>
+			<label for="studentSearch" class="mb-2 block text-sm font-medium tracking-wide text-brand-deep dark:text-brand-mist">Search Student Pages</label>
 			<div class="relative max-w-xl">
 				<input
 					id="studentSearch"
@@ -90,7 +90,7 @@
 
 		<!-- Linkable student index (built by JavaScript) -->
 		<section class="mb-6 rounded-2xl border border-brand-sky/40 bg-brand-paper p-4 shadow-sm transition-shadow duration-200 ease-out hover:shadow sm:p-5 dark:border-brand-sky/40 dark:bg-brand-deep/80">
-			<h2 class="mb-3 text-lg font-semibold tracking-tight">Student pages</h2>
+			<h2 class="mb-3 text-lg font-semibold tracking-tight">Student Pages</h2>
 			<div id="studentLinks" aria-live="polite"></div>
 		</section>
 

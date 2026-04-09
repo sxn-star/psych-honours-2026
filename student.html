@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Student Gallery</title>
+  <title>Student Showcase</title>
   <script>
     if (localStorage.getItem("theme") === "dark") {
       document.documentElement.classList.add("dark");
@@ -23,7 +23,7 @@
 
   <main class="mx-auto max-w-5xl p-4 sm:p-6 md:p-8">
     <section class="mb-6 rounded-3xl border border-brand-sky/40 bg-brand-paper/95 p-5 shadow-sm transition-shadow duration-200 ease-out hover:shadow sm:p-7 dark:border-brand-sky/40 dark:bg-brand-deep/80">
-      <h1 id="studentTitle" class="mb-2 text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">Student Gallery</h1>
+      <h1 id="studentTitle" class="mb-2 text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">Student Showcase</h1>
       <p id="studentSubtitle" class="max-w-2xl text-sm leading-relaxed text-brand-deep/85 dark:text-brand-mist/85"></p>
     </section>
 
@@ -39,7 +39,7 @@
     </section>
 
     <section class="rounded-2xl border border-brand-sky/40 bg-brand-paper p-4 shadow-sm transition-shadow duration-200 ease-out hover:shadow sm:p-5 dark:border-brand-sky/40 dark:bg-brand-deep/80">
-      <h2 class="mb-3 text-lg font-semibold tracking-tight">Approved media</h2>
+      <h2 class="mb-3 text-lg font-semibold tracking-tight">Uploaded Media</h2>
       <div id="studentGallery" aria-live="polite" class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-3"></div>
     </section>
   </main>

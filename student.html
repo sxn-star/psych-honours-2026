@@ -12,7 +12,7 @@
 </head>
 <body class="min-h-screen bg-gradient-to-b from-brand-paper to-brand-mist text-brand-deep transition-colors duration-200 dark:from-brand-deep dark:to-brand-deep dark:text-brand-paper">
   <header class="border-b border-brand-sky/40 bg-brand-paper/85 backdrop-blur dark:border-brand-sky/40 dark:bg-brand-deep/95">
-    <div class="mx-auto flex max-w-5xl flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="mx-auto flex w-full max-w-7xl flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
       <a href="index.html" aria-label="Back to home" class="text-sm text-brand-deep/85 transition-colors duration-200 hover:text-brand-sky focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky focus-visible:ring-offset-1 dark:text-brand-mist/85 dark:hover:text-brand-paper dark:focus-visible:ring-brand-mist dark:focus-visible:ring-offset-brand-deep">← Home</a>
       <div class="flex w-full items-center justify-end gap-2 sm:w-auto">
         <button id="themeToggle" type="button" aria-label="Toggle dark mode" aria-pressed="false" class="rounded-xl border border-brand-sky/60 bg-brand-paper px-3 py-2 text-sm font-medium text-brand-deep transition-all duration-200 ease-out hover:bg-brand-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky focus-visible:ring-offset-1 active:scale-[0.99] dark:border-brand-sky dark:bg-brand-deep dark:text-brand-paper dark:hover:bg-brand-sky/20 dark:focus-visible:ring-brand-mist dark:focus-visible:ring-offset-brand-deep">Dark</button>
@@ -21,7 +21,7 @@
     </div>
   </header>
 
-  <main class="mx-auto max-w-5xl p-4 sm:p-6 md:p-8">
+  <main class="mx-auto w-full max-w-7xl p-4 sm:p-6 md:p-8 lg:px-8">
     <section class="mb-6 rounded-3xl border border-brand-sky/40 bg-brand-paper/95 p-5 shadow-sm transition-shadow duration-200 ease-out hover:shadow sm:p-7 dark:border-brand-sky/40 dark:bg-brand-deep/80">
       <h1 id="studentTitle" class="mb-2 text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">Student Showcase</h1>
       <p id="studentSubtitle" class="max-w-2xl text-sm leading-relaxed text-brand-deep/85 dark:text-brand-mist/85"></p>
@@ -40,7 +40,7 @@
 
     <section class="rounded-2xl border border-brand-sky/40 bg-brand-paper p-4 shadow-sm transition-shadow duration-200 ease-out hover:shadow sm:p-5 dark:border-brand-sky/40 dark:bg-brand-deep/80">
       <h2 class="mb-3 text-lg font-semibold tracking-tight">Uploaded Media</h2>
-      <div id="studentGallery" aria-live="polite" class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-3"></div>
+      <div id="studentGallery" aria-live="polite" class="grid grid-cols-1 gap-6"></div>
     </section>
   </main>
 

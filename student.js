@@ -210,12 +210,26 @@ async function loadStudentGallery(student) {
       const imageId = doc.imageId || doc.fileId;
       if (!imageId) return;
 
+      const link = document.createElement("a");
+      link.href = storage.getFileView(bucketId, imageId);
+      link.target = "_blank";
+      link.rel = "noreferrer";
+      link.className = "group block overflow-hidden rounded-2xl border border-brand-sky/40 bg-brand-mist shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow dark:border-brand-sky/50 dark:bg-brand-deep/70";
+
       const img = document.createElement("img");
       img.src = storage.getFileView(bucketId, imageId);
-      img.alt = doc.imageName ? `Upload: ${doc.imageName}` : "Student upload";
-      img.className = "aspect-square w-full rounded-xl border border-brand-sky/40 object-cover shadow-sm transition-all duration-200 ease-out hover:scale-[1.01] hover:shadow dark:border-brand-sky/50";
-      img.onerror = () => img.remove();
-      studentGallery.appendChild(img);
+      img.alt = doc.imageName ? `Poster: ${doc.imageName}` : "Student poster";
+      img.className = "h-[32rem] w-full object-contain bg-white p-3 sm:h-[42rem] lg:h-[52rem]";
+      img.loading = "lazy";
+      img.onerror = () => link.remove();
+
+      const caption = document.createElement("div");
+      caption.className = "border-t border-brand-sky/30 bg-brand-paper px-4 py-3 text-sm text-brand-deep/80 dark:border-brand-sky/40 dark:bg-brand-deep/90 dark:text-brand-mist/85";
+      caption.textContent = doc.imageName || "Student poster";
+
+      link.appendChild(img);
+      link.appendChild(caption);
+      studentGallery.appendChild(link);
     });
   } catch (error) {
     const detail = error && error.message ? error.message : "Unknown error";

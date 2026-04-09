@@ -34,6 +34,20 @@ let currentStudentPage = null;
 let studentPages = [];
 let isRedirecting = false;
 
+const ICONS = {
+  moon: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M21 12.79A9 9 0 1 1 11.21 3a7.5 7.5 0 0 0 9.79 9.79Z\"/></svg>",
+  sun: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M12 3v1.5m0 15V21m9-9h-1.5M4.5 12H3m15.364 6.364-1.06-1.06M6.697 6.697l-1.06-1.06m12.727 0-1.06 1.06M6.697 17.303l-1.06 1.06M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z\"/></svg>",
+  login: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-7.5a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 6 21h7.5a2.25 2.25 0 0 0 2.25-2.25V15\"/><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"m12 12-3-3m3 3-3 3m3-3H9\"/></svg>",
+  logout: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h7.5a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 18 21h-7.5a2.25 2.25 0 0 1-2.25-2.25V15\"/><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"m3 12 3-3m-3 3 3 3m-3-3h12\"/></svg>",
+  guest: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M15.75 6.75a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 19.5a7.5 7.5 0 0 1 15 0\"/></svg>",
+  student: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M3 7.5 12 3l9 4.5-9 4.5L3 7.5Zm3 4.5v4.5c0 .75 2.686 3 6 3s6-2.25 6-3V12\"/></svg>",
+  page: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M4.5 5.25h15A1.5 1.5 0 0 1 21 6.75v10.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.25V6.75a1.5 1.5 0 0 1 1.5-1.5Z\"/><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M7.5 9h9m-9 3.75h6\"/></svg>"
+};
+
+function iconLabel(iconSvg, text) {
+  return `<span class="inline-flex items-center gap-2">${iconSvg}<span>${text}</span></span>`;
+}
+
 const sessionChoice = createSessionChoiceOverlay();
 
 function isGuestUser(user) {
@@ -65,12 +79,12 @@ function createSessionChoiceOverlay() {
   const guestButton = document.createElement("button");
   guestButton.type = "button";
   guestButton.className = "rounded-xl border border-brand-sky/60 px-4 py-3 text-sm font-medium text-brand-deep transition hover:bg-brand-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky dark:border-brand-sky dark:text-brand-paper dark:hover:bg-brand-sky/20 dark:focus-visible:ring-brand-mist";
-  guestButton.textContent = "Continue as Guest";
+  guestButton.innerHTML = iconLabel(ICONS.guest, "Continue as Guest");
 
   const studentButton = document.createElement("button");
   studentButton.type = "button";
   studentButton.className = "rounded-xl bg-brand-deep px-4 py-3 text-sm font-medium text-brand-paper transition hover:bg-brand-sky hover:text-brand-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky dark:bg-brand-sky dark:text-brand-deep dark:hover:bg-brand-mist dark:focus-visible:ring-brand-mist";
-  studentButton.textContent = "I am a Student";
+  studentButton.innerHTML = iconLabel(ICONS.student, "I am a Student");
 
   const status = document.createElement("p");
   status.className = "mt-4 text-sm text-brand-deep/80 dark:text-brand-mist/85";
@@ -131,7 +145,7 @@ function bindSessionChoice() {
 function setThemeButtonText() {
   if (!themeToggle) return;
   const isDark = document.documentElement.classList.contains("dark");
-  themeToggle.textContent = isDark ? "Light" : "Dark";
+  themeToggle.innerHTML = isDark ? iconLabel(ICONS.sun, "Light") : iconLabel(ICONS.moon, "Dark");
   themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
   themeToggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
 }
@@ -165,7 +179,7 @@ function setAuthButton() {
   if (!loginBtn) return;
 
   if (currentUser) {
-    loginBtn.textContent = "Log out";
+    loginBtn.innerHTML = iconLabel(ICONS.logout, "Log out");
     loginBtn.setAttribute("aria-label", "Log out");
     loginBtn.onclick = async () => {
       await account.deleteSession("current");
@@ -174,7 +188,7 @@ function setAuthButton() {
     return;
   }
 
-  loginBtn.textContent = "Login";
+  loginBtn.innerHTML = iconLabel(ICONS.login, "Login");
   loginBtn.setAttribute("aria-label", "Log in with Google");
   loginBtn.onclick = () => {
     account.createOAuth2Session("google", window.location.href, window.location.href);
@@ -206,8 +220,8 @@ function renderStudentIndex(filterText = "") {
   filtered.forEach((student) => {
     const link = document.createElement("a");
     link.href = `student.html?student=${encodeURIComponent(student.slug)}`;
-    link.textContent = student.name;
-    link.className = "mb-2 block rounded-xl border border-brand-sky/40 bg-brand-paper px-4 py-3.5 text-[15px] font-medium leading-6 text-brand-deep shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-mist hover:shadow focus:outline-none focus:ring-2 focus:ring-brand-sky focus:ring-offset-1 dark:border-brand-sky/50 dark:bg-brand-deep/80 dark:text-brand-paper dark:hover:bg-brand-sky/20 dark:focus:ring-brand-mist dark:focus:ring-offset-brand-deep";
+    link.innerHTML = `${ICONS.page}<span>${student.name}</span>`;
+    link.className = "mb-2 flex items-center gap-2 rounded-xl border border-brand-sky/40 bg-brand-paper px-4 py-3.5 text-[15px] font-medium leading-6 text-brand-deep shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-mist hover:shadow focus:outline-none focus:ring-2 focus:ring-brand-sky focus:ring-offset-1 dark:border-brand-sky/50 dark:bg-brand-deep/80 dark:text-brand-paper dark:hover:bg-brand-sky/20 dark:focus:ring-brand-mist dark:focus:ring-offset-brand-deep";
     studentLinks.appendChild(link);
   });
 }

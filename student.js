@@ -37,6 +37,24 @@ let selectedFile = null;
 let posterItems = [];
 let activePosterIndex = -1;
 
+const ICONS = {
+  moon: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M21 12.79A9 9 0 1 1 11.21 3a7.5 7.5 0 0 0 9.79 9.79Z\"/></svg>",
+  sun: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M12 3v1.5m0 15V21m9-9h-1.5M4.5 12H3m15.364 6.364-1.06-1.06M6.697 6.697l-1.06-1.06m12.727 0-1.06 1.06M6.697 17.303l-1.06 1.06M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z\"/></svg>",
+  login: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-7.5a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 6 21h7.5a2.25 2.25 0 0 0 2.25-2.25V15\"/><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"m12 12-3-3m3 3-3 3m3-3H9\"/></svg>",
+  logout: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h7.5a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 18 21h-7.5a2.25 2.25 0 0 1-2.25-2.25V15\"/><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"m3 12 3-3m-3 3 3 3m-3-3h12\"/></svg>",
+  guest: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M15.75 6.75a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 19.5a7.5 7.5 0 0 1 15 0\"/></svg>",
+  student: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M3 7.5 12 3l9 4.5-9 4.5L3 7.5Zm3 4.5v4.5c0 .75 2.686 3 6 3s6-2.25 6-3V12\"/></svg>",
+  arrowLeft: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M15.75 19.5 8.25 12l7.5-7.5\"/></svg>",
+  arrowRight: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"m8.25 4.5 7.5 7.5-7.5 7.5\"/></svg>",
+  close: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"m6 6 12 12M18 6 6 18\"/></svg>",
+  fullscreen: "<svg class=\"h-3.5 w-3.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M3.75 9V3.75H9m11.25 5.25V3.75H15M3.75 15v5.25H9M15 20.25h5.25V15\"/></svg>",
+  external: "<svg class=\"h-3.5 w-3.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M13.5 6H18m0 0v4.5M18 6 10.5 13.5\"/><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M6 9.75A2.25 2.25 0 0 1 8.25 7.5H9m-3 6.75A2.25 2.25 0 0 0 8.25 16.5h7.5A2.25 2.25 0 0 0 18 14.25V12\"/></svg>"
+};
+
+function iconLabel(iconSvg, text) {
+  return `<span class="inline-flex items-center gap-2">${iconSvg}<span>${text}</span></span>`;
+}
+
 const sessionChoice = createSessionChoiceOverlay();
 const lightbox = createPosterLightbox();
 
@@ -61,12 +79,12 @@ function createSessionChoiceOverlay() {
   const guestButton = document.createElement("button");
   guestButton.type = "button";
   guestButton.className = "rounded-xl border border-brand-sky/60 px-4 py-3 text-sm font-medium text-brand-deep transition hover:bg-brand-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky dark:border-brand-sky dark:text-brand-paper dark:hover:bg-brand-sky/20 dark:focus-visible:ring-brand-mist";
-  guestButton.textContent = "Continue as Guest";
+  guestButton.innerHTML = iconLabel(ICONS.guest, "Continue as Guest");
 
   const studentButton = document.createElement("button");
   studentButton.type = "button";
   studentButton.className = "rounded-xl bg-brand-deep px-4 py-3 text-sm font-medium text-brand-paper transition hover:bg-brand-sky hover:text-brand-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky dark:bg-brand-sky dark:text-brand-deep dark:hover:bg-brand-mist dark:focus-visible:ring-brand-mist";
-  studentButton.textContent = "I am a Student";
+  studentButton.innerHTML = iconLabel(ICONS.student, "I am a Student");
 
   const status = document.createElement("p");
   status.className = "mt-4 text-sm text-brand-deep/80 dark:text-brand-mist/85";
@@ -139,13 +157,13 @@ function createPosterLightbox() {
   const prevButton = document.createElement("button");
   prevButton.type = "button";
   prevButton.className = "rounded-xl border border-brand-mist/60 px-3 py-2 text-sm font-medium text-brand-paper transition hover:bg-brand-mist/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-mist";
-  prevButton.textContent = "Previous";
+  prevButton.innerHTML = iconLabel(ICONS.arrowLeft, "Previous");
   prevButton.onclick = () => showPosterAtIndex(activePosterIndex - 1);
 
   const nextButton = document.createElement("button");
   nextButton.type = "button";
   nextButton.className = "rounded-xl border border-brand-mist/60 px-3 py-2 text-sm font-medium text-brand-paper transition hover:bg-brand-mist/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-mist";
-  nextButton.textContent = "Next";
+  nextButton.innerHTML = iconLabel(ICONS.arrowRight, "Next");
   nextButton.onclick = () => showPosterAtIndex(activePosterIndex + 1);
 
   nav.appendChild(prevButton);
@@ -154,7 +172,7 @@ function createPosterLightbox() {
   const closeButton = document.createElement("button");
   closeButton.type = "button";
   closeButton.className = "rounded-xl border border-brand-mist/60 px-3 py-2 text-sm font-medium text-brand-paper transition hover:bg-brand-mist/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-mist";
-  closeButton.textContent = "Close";
+  closeButton.innerHTML = iconLabel(ICONS.close, "Close");
   closeButton.onclick = closePosterLightbox;
 
   controls.appendChild(nav);
@@ -250,7 +268,7 @@ function isPdfDocument(doc, fileName) {
 function setThemeButtonText() {
   if (!themeToggle) return;
   const isDark = document.documentElement.classList.contains("dark");
-  themeToggle.textContent = isDark ? "Light" : "Dark";
+  themeToggle.innerHTML = isDark ? iconLabel(ICONS.sun, "Light") : iconLabel(ICONS.moon, "Dark");
   themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
   themeToggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
 }
@@ -282,7 +300,7 @@ function getSchemaImageType(file) {
 
 function setAuthButton() {
   if (currentUser) {
-    loginBtn.textContent = "Log out";
+    loginBtn.innerHTML = iconLabel(ICONS.logout, "Log out");
     loginBtn.setAttribute("aria-label", "Log out");
     loginBtn.onclick = async () => {
       await account.deleteSession("current");
@@ -291,7 +309,7 @@ function setAuthButton() {
     return;
   }
 
-  loginBtn.textContent = "Login";
+  loginBtn.innerHTML = iconLabel(ICONS.login, "Login");
   loginBtn.setAttribute("aria-label", "Log in with Google");
   loginBtn.onclick = () => {
     account.createOAuth2Session("google", window.location.href, window.location.href);
@@ -476,12 +494,14 @@ async function loadStudentGallery(student) {
       openOriginal.target = "_blank";
       openOriginal.rel = "noreferrer";
       openOriginal.className = "shrink-0 rounded-lg border border-brand-sky/50 px-2.5 py-1.5 text-xs font-medium transition hover:bg-brand-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky dark:border-brand-sky/60 dark:hover:bg-brand-sky/20";
-      openOriginal.textContent = "Open original";
+      openOriginal.innerHTML = `${ICONS.external}<span>Open original</span>`;
+      openOriginal.classList.add("inline-flex", "items-center", "gap-1.5");
 
       const openViewer = document.createElement("button");
       openViewer.type = "button";
       openViewer.className = "shrink-0 rounded-lg border border-brand-sky/50 px-2.5 py-1.5 text-xs font-medium transition hover:bg-brand-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky dark:border-brand-sky/60 dark:hover:bg-brand-sky/20";
-      openViewer.textContent = "Full-screen";
+      openViewer.innerHTML = `${ICONS.fullscreen}<span>Full-screen</span>`;
+      openViewer.classList.add("inline-flex", "items-center", "gap-1.5");
       openViewer.onclick = () => showPosterAtIndex(posterIndex);
 
       caption.appendChild(nameText);

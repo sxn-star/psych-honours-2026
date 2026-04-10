@@ -37,6 +37,8 @@ let selectedFile = null;
 let posterItems = [];
 let activePosterIndex = -1;
 
+const GUEST_MODE_KEY = "psychpostersGuestMode";
+
 const ICONS = {
   moon: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M21 12.79A9 9 0 1 1 11.21 3a7.5 7.5 0 0 0 9.79 9.79Z\"/></svg>",
   sun: "<svg class=\"h-4 w-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M12 3v1.5m0 15V21m9-9h-1.5M4.5 12H3m15.364 6.364-1.06-1.06M6.697 6.697l-1.06-1.06m12.727 0-1.06 1.06M6.697 17.303l-1.06 1.06M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z\"/></svg>",
@@ -53,6 +55,14 @@ const ICONS = {
 
 function iconLabel(iconSvg, text) {
   return `<span class="inline-flex items-center gap-2">${iconSvg}<span>${text}</span></span>`;
+}
+
+function isGuestModeEnabled() {
+  return localStorage.getItem(GUEST_MODE_KEY) === "1";
+}
+
+function setGuestModeEnabled(enabled) {
+  localStorage.setItem(GUEST_MODE_KEY, enabled ? "1" : "0");
 }
 
 function revealElements(root = document) {
@@ -229,6 +239,7 @@ function bindSessionChoice() {
   };
 
   const startStudentAuth = () => {
+    setGuestModeEnabled(false);
     sessionChoice.studentAuthWrap.classList.remove("hidden");
     sessionChoice.guestButton.classList.add("hidden");
     sessionChoice.studentButton.classList.add("hidden");
@@ -276,6 +287,8 @@ function bindSessionChoice() {
     sessionChoice.status.textContent = mode === "signin" ? "Signing in..." : "Creating account...";
 
     try {
+      setGuestModeEnabled(false);
+
       if (mode === "signup") {
         try {
           await account.create(ID.unique(), email, password, fullName || "Student");
@@ -305,19 +318,8 @@ function bindSessionChoice() {
   sessionChoice.backButton.onclick = resetToChoice;
 
   sessionChoice.guestButton.onclick = async () => {
-    sessionChoice.guestButton.disabled = true;
-    sessionChoice.studentButton.disabled = true;
-    sessionChoice.status.textContent = "Starting guest session...";
-
-    try {
-      await account.createAnonymousSession();
-      window.location.reload();
-    } catch (error) {
-      const detail = error && error.message ? error.message : "Unknown error";
-      sessionChoice.status.textContent = `Could not create guest session: ${detail}`;
-      sessionChoice.guestButton.disabled = false;
-      sessionChoice.studentButton.disabled = false;
-    }
+    setGuestModeEnabled(true);
+    hideSessionChoiceOverlay();
   };
 }
 
@@ -512,6 +514,8 @@ async function rejectDisallowedSession() {
   if (!currentUser || isAllowedEmailForDomain(currentUser.email, appConfig)) {
     return false;
   }
+
+  setGuestModeEnabled(false);
 
   const blockedEmail = String(currentUser.email || "").trim();
   try {
@@ -766,10 +770,11 @@ async function bootstrap() {
 	const wasRejected = await rejectDisallowedSession();
 
   if (!currentUser) {
-    if (!wasRejected) {
+    if (!wasRejected && !isGuestModeEnabled()) {
       showSessionChoiceOverlay();
     }
   } else {
+    setGuestModeEnabled(false);
     hideSessionChoiceOverlay();
   }
 

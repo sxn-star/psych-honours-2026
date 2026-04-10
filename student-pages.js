@@ -56,6 +56,25 @@ export function getStudentPagesCollectionId(appConfig) {
 	return normalizeText(appConfig?.studentPagesCollectionId || "");
 }
 
+export function getAllowedEmailDomain(appConfig) {
+	return normalizeText(appConfig?.allowedDomain || "").toLowerCase();
+}
+
+export function isAllowedEmailForDomain(email, appConfig) {
+	const normalizedEmail = normalizeText(email).toLowerCase();
+	if (!normalizedEmail) {
+		return true;
+	}
+
+	const allowedDomain = getAllowedEmailDomain(appConfig);
+	if (!allowedDomain) {
+		return true;
+	}
+
+	const domain = normalizedEmail.split("@")[1] || "";
+	return domain === allowedDomain;
+}
+
 export async function listStudentPages({ databases, databaseId, appConfig }) {
 	const collectionId = getStudentPagesCollectionId(appConfig);
 	if (!collectionId) {
@@ -146,6 +165,10 @@ export async function resolveCurrentStudentPage({ account, databases, databaseId
 		return null;
 	}
 
+	if (!isAllowedEmailForDomain(currentUser.email, appConfig)) {
+		return null;
+	}
+
 	if (!collectionId) {
 		return findStudentByUserId(currentUser.$id);
 	}
@@ -199,6 +222,10 @@ export async function claimStudentPageForUser({ account, databases, databaseId, 
 	}
 
 	const currentUser = await account.get();
+	if (!isAllowedEmailForDomain(currentUser.email, appConfig)) {
+		throw new Error("Use your allowed email domain to create a student page.");
+	}
+
 	const email = normalizeText(currentUser.email || "").toLowerCase();
 
 	const existingByUser = await findStudentPageByUserId({

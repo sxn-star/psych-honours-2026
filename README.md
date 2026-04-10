@@ -37,12 +37,14 @@ Add these in your Appwrite Site environment settings:
 - `APPWRITE_DATABASE_ID` = your database id
 - `APPWRITE_COLLECTION_ID` = your collection id
 - `APPWRITE_STUDENT_PAGES_COLLECTION_ID` = the collection that stores student page records
+- `APPWRITE_ALLOWED_DOMAIN` = the only email domain allowed to create pages or upload content
 
 ### Important security notes
 
 - Do **not** store server API keys in this frontend project.
 - Project/database/bucket/collection IDs are configuration values for the client app.
 - Access control is enforced by your Appwrite permissions and auth rules.
+- Domain restriction is enforced by `APPWRITE_ALLOWED_DOMAIN`; if it is unset, any authenticated Google account can proceed.
 - `git-secrets` is enabled in this repo as an extra commit-time protection layer.
 
 ## Student Pages Collection Setup

@@ -1,5 +1,5 @@
 import { Client, Account, Databases } from "https://cdn.jsdelivr.net/npm/appwrite@13.0.0/+esm";
-import { claimStudentPageForUser, listStudentPages, resolveCurrentStudentPage } from "./student-pages.js";
+import { claimStudentPageForUser, getAllowedEmailDomain, isAllowedEmailForDomain, listStudentPages, resolveCurrentStudentPage } from "./student-pages.js";
 
 const appConfig = window.APP_CONFIG;
 if (!appConfig) {
@@ -60,10 +60,9 @@ function revealElements(root = document) {
 function initWelcomeRotator() {
   if (!welcomeRotator) return;
   const messages = [
-    "Discover emerging student research in minutes.",
+    "Discover emerging student psychology research.",
     "Browse posters, methods, and findings from this cohort.",
-    "Tap any name to step into their research story.",
-    "Use the gallery like an interactive mini-conference."
+    "Tap any name to step into their research story."
   ];
 
   let index = 0;
@@ -238,6 +237,31 @@ async function checkAuth() {
   setAuthButton();
 }
 
+async function rejectDisallowedSession() {
+  if (!currentUser || isAllowedEmailForDomain(currentUser.email, appConfig)) {
+    return false;
+  }
+
+  const blockedEmail = String(currentUser.email || "").trim();
+  try {
+    await account.deleteSession("current");
+  } catch {
+  }
+
+  currentUser = null;
+  setAuthButton();
+  showSessionChoiceOverlay();
+
+  const allowedDomain = getAllowedEmailDomain(appConfig);
+  if (sessionChoice.status) {
+    sessionChoice.status.textContent = allowedDomain
+      ? `${blockedEmail} is not allowed here. Use an @${allowedDomain} account to create or upload content.`
+      : `${blockedEmail} is not allowed here.`;
+  }
+
+  return true;
+}
+
 function renderStudentIndex(filterText = "") {
   if (!studentLinks) return;
 
@@ -340,9 +364,12 @@ async function bootstrap() {
   bindSessionChoice();
 
   await checkAuth();
+	const wasRejected = await rejectDisallowedSession();
 
   if (!currentUser) {
-    showSessionChoiceOverlay();
+    if (!wasRejected) {
+      showSessionChoiceOverlay();
+    }
   } else {
     hideSessionChoiceOverlay();
   }

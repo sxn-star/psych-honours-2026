@@ -1,5 +1,5 @@
 import { Client, Account, Storage, Databases, ID, Query, Permission, Role } from "https://cdn.jsdelivr.net/npm/appwrite@13.0.0/+esm";
-import { findStudentPageBySlug, resolveCurrentStudentPage } from "./student-pages.js";
+import { findStudentPageBySlug, getAllowedEmailDomain, isAllowedEmailForDomain, resolveCurrentStudentPage } from "./student-pages.js";
 
 const appConfig = window.APP_CONFIG;
 if (!appConfig) {
@@ -333,6 +333,31 @@ async function checkAuth() {
   setAuthButton();
 }
 
+async function rejectDisallowedSession() {
+  if (!currentUser || isAllowedEmailForDomain(currentUser.email, appConfig)) {
+    return false;
+  }
+
+  const blockedEmail = String(currentUser.email || "").trim();
+  try {
+    await account.deleteSession("current");
+  } catch {
+  }
+
+  currentUser = null;
+  setAuthButton();
+  showSessionChoiceOverlay();
+
+  const allowedDomain = getAllowedEmailDomain(appConfig);
+  if (sessionChoice.status) {
+    sessionChoice.status.textContent = allowedDomain
+      ? `${blockedEmail} is not allowed here. Use an @${allowedDomain} account to upload to this page.`
+      : `${blockedEmail} is not allowed here.`;
+  }
+
+  return true;
+}
+
 function bindDropzoneHandlers() {
   chooseFileBtn.onclick = () => fileInput.click();
 
@@ -362,6 +387,11 @@ function bindDropzoneHandlers() {
 
 async function uploadForStudent(student) {
   if (!currentUser) return alert("Please log in first");
+
+	if (!isAllowedEmailForDomain(currentUser.email, appConfig)) {
+		const allowedDomain = getAllowedEmailDomain(appConfig);
+		return alert(allowedDomain ? `Use an @${allowedDomain} account to upload.` : "This account is not allowed to upload.");
+	}
 
   // Enforce: only the matching student account can upload to this student page.
   if (currentUser.$id !== student.userId) {
@@ -557,9 +587,12 @@ async function bootstrap() {
 
   initThemeToggle();
   await checkAuth();
+	const wasRejected = await rejectDisallowedSession();
 
   if (!currentUser) {
-    showSessionChoiceOverlay();
+    if (!wasRejected) {
+      showSessionChoiceOverlay();
+    }
   } else {
     hideSessionChoiceOverlay();
   }

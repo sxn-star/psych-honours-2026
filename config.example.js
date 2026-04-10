@@ -6,5 +6,6 @@ window.APP_CONFIG = {
   bucketId: "YOUR_BUCKET_ID",
   databaseId: "YOUR_DB_ID",
   collectionId: "YOUR_COLLECTION_ID",
-  studentPagesCollectionId: "YOUR_STUDENT_PAGES_COLLECTION_ID"
+  studentPagesCollectionId: "YOUR_STUDENT_PAGES_COLLECTION_ID",
+  allowedDomain: "example.org"
 };

@@ -109,7 +109,7 @@ function createSessionChoiceOverlay() {
 
   studentButton.onclick = () => {
     status.textContent = "Redirecting to student login...";
-    account.createOAuth2Token("google", window.location.href, window.location.href);
+    account.createOAuth2Session("google", window.location.href, window.location.href);
   };
 
   guestButton.onclick = async () => {
@@ -320,30 +320,8 @@ function setAuthButton() {
   loginBtn.innerHTML = iconLabel(ICONS.login, "Login");
   loginBtn.setAttribute("aria-label", "Log in with Google");
   loginBtn.onclick = () => {
-    account.createOAuth2Token("google", window.location.href, window.location.href);
+    account.createOAuth2Session("google", window.location.href, window.location.href);
   };
-}
-
-async function completeOAuthTokenSession() {
-  const params = new URLSearchParams(window.location.search);
-  const userId = params.get("userId");
-  const secret = params.get("secret");
-
-  if (!userId || !secret) {
-    return;
-  }
-
-  try {
-    await account.createSession(userId, secret);
-  } catch {
-  }
-
-  params.delete("userId");
-  params.delete("secret");
-
-  const query = params.toString();
-  const cleanedUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
-  window.history.replaceState({}, "", cleanedUrl);
 }
 
 async function checkAuth() {
@@ -594,8 +572,6 @@ async function getStudentFromUrl() {
 }
 
 async function bootstrap() {
-  await completeOAuthTokenSession();
-
   const student = await getStudentFromUrl();
 
   if (!student) {

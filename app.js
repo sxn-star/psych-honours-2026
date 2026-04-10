@@ -302,10 +302,17 @@ function bindSessionChoice() {
 
     try {
       if (mode === "signup") {
-        await account.create(ID.unique(), email, password, fullName || "Student");
+        try {
+          await account.create(ID.unique(), email, password, fullName || "Student");
+        } catch (createError) {
+          const message = String(createError && createError.message ? createError.message : "").toLowerCase();
+          if (!message.includes("already") && !message.includes("exists") && !message.includes("409")) {
+            throw createError;
+          }
+        }
       }
 
-      await account.createEmailPasswordSession(email, password);
+      await account.createEmailSession(email, password);
       window.location.reload();
     } catch (error) {
       const detail = error && error.message ? error.message : "Unknown error";

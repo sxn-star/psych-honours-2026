@@ -60,6 +60,11 @@ export function getAllowedEmailDomain(appConfig) {
 	return normalizeText(appConfig?.allowedDomain || "").toLowerCase();
 }
 
+export function getAllowedDomainRole(appConfig) {
+	const allowedDomain = getAllowedEmailDomain(appConfig);
+	return allowedDomain ? Role.label(allowedDomain) : "";
+}
+
 export function isAllowedEmailForDomain(email, appConfig) {
 	const normalizedEmail = normalizeText(email).toLowerCase();
 	if (!normalizedEmail) {
@@ -73,6 +78,34 @@ export function isAllowedEmailForDomain(email, appConfig) {
 
 	const domain = normalizedEmail.split("@")[1] || "";
 	return domain === allowedDomain;
+}
+
+export function getUserDomainLabel(user, appConfig) {
+	const labels = Array.isArray(user?.labels) ? user.labels : [];
+	const allowedDomainRole = getAllowedDomainRole(appConfig);
+
+	if (allowedDomainRole && labels.includes(allowedDomainRole)) {
+		return allowedDomainRole;
+	}
+
+	if (labels.includes("domain:blocked")) {
+		return "domain:blocked";
+	}
+
+	return "";
+}
+
+export function getUserDomainStatus(user, appConfig) {
+	const domainLabel = getUserDomainLabel(user, appConfig);
+	if (domainLabel === "domain:blocked") {
+		return "blocked";
+	}
+
+	if (domainLabel) {
+		return "allowed";
+	}
+
+	return "pending";
 }
 
 export async function listStudentPages({ databases, databaseId, appConfig }) {
@@ -165,7 +198,7 @@ export async function resolveCurrentStudentPage({ account, databases, databaseId
 		return null;
 	}
 
-	if (!isAllowedEmailForDomain(currentUser.email, appConfig)) {
+	if (getUserDomainStatus(currentUser, appConfig) !== "allowed") {
 		return null;
 	}
 
@@ -222,7 +255,7 @@ export async function claimStudentPageForUser({ account, databases, databaseId, 
 	}
 
 	const currentUser = await account.get();
-	if (!isAllowedEmailForDomain(currentUser.email, appConfig)) {
+	if (getUserDomainStatus(currentUser, appConfig) !== "allowed") {
 		throw new Error("Use your allowed email domain to create a student page.");
 	}
 

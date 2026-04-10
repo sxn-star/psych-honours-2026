@@ -48,7 +48,8 @@ module.exports = async ({ req, res, log, error }) => {
         email,
         domain,
         isAllowed,
-        labelAssigned: newLabel
+        labelAssigned: newLabel,
+        deleted: false
       },
       200
     );

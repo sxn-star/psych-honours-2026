@@ -1,5 +1,5 @@
 import { Client, Account, Storage, Databases, ID, Query, Permission, Role } from "https://cdn.jsdelivr.net/npm/appwrite@13.0.0/+esm";
-import { findStudentPageBySlug, getAllowedEmailDomain, getUserDomainStatus, resolveCurrentStudentPage } from "./student-pages.js";
+import { findStudentPageBySlug, getAllowedEmailDomain, isAllowedEmailForDomain, resolveCurrentStudentPage } from "./student-pages.js";
 
 const appConfig = window.APP_CONFIG;
 if (!appConfig) {
@@ -333,48 +333,8 @@ async function checkAuth() {
   setAuthButton();
 }
 
-function sleep(ms) {
-  return new Promise((resolve) => window.setTimeout(resolve, ms));
-}
-
-async function waitForDomainLabel(maxAttempts = 12, delayMs = 250) {
-  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    if (!currentUser) {
-      return "pending";
-    }
-
-    const status = getUserDomainStatus(currentUser, appConfig);
-    if (status !== "pending") {
-      return status;
-    }
-
-    try {
-      currentUser = await account.get();
-    } catch {
-      return "pending";
-    }
-
-    if (getUserDomainStatus(currentUser, appConfig) !== "pending") {
-      return getUserDomainStatus(currentUser, appConfig);
-    }
-
-    await sleep(delayMs);
-  }
-
-  return currentUser ? getUserDomainStatus(currentUser, appConfig) : "pending";
-}
-
 async function rejectDisallowedSession() {
-  if (!currentUser) {
-    return false;
-  }
-
-  const status = getUserDomainStatus(currentUser, appConfig);
-  if (status === "pending") {
-    return false;
-  }
-
-  if (status === "allowed") {
+  if (!currentUser || isAllowedEmailForDomain(currentUser.email, appConfig)) {
     return false;
   }
 
@@ -428,7 +388,7 @@ function bindDropzoneHandlers() {
 async function uploadForStudent(student) {
   if (!currentUser) return alert("Please log in first");
 
-  if (getUserDomainStatus(currentUser, appConfig) !== "allowed") {
+	if (!isAllowedEmailForDomain(currentUser.email, appConfig)) {
 		const allowedDomain = getAllowedEmailDomain(appConfig);
 		return alert(allowedDomain ? `Use an @${allowedDomain} account to upload.` : "This account is not allowed to upload.");
 	}
@@ -627,9 +587,6 @@ async function bootstrap() {
 
   initThemeToggle();
   await checkAuth();
-  if (currentUser) {
-    await waitForDomainLabel();
-  }
 	const wasRejected = await rejectDisallowedSession();
 
   if (!currentUser) {

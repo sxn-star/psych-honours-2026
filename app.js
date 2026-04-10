@@ -1,5 +1,5 @@
 import { Client, Account, Databases } from "https://cdn.jsdelivr.net/npm/appwrite@13.0.0/+esm";
-import { claimStudentPageForUser, getAllowedEmailDomain, getUserDomainStatus, listStudentPages, resolveCurrentStudentPage } from "./student-pages.js";
+import { claimStudentPageForUser, getAllowedEmailDomain, isAllowedEmailForDomain, listStudentPages, resolveCurrentStudentPage } from "./student-pages.js";
 
 const appConfig = window.APP_CONFIG;
 if (!appConfig) {
@@ -237,48 +237,12 @@ async function checkAuth() {
   setAuthButton();
 }
 
-function sleep(ms) {
-  return new Promise((resolve) => window.setTimeout(resolve, ms));
-}
-
-async function waitForDomainLabel(maxAttempts = 12, delayMs = 250) {
-  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    if (!currentUser) {
-      return "pending";
-    }
-
-    const status = getUserDomainStatus(currentUser, appConfig);
-    if (status !== "pending") {
-      return status;
-    }
-
-    try {
-      currentUser = await account.get();
-    } catch {
-      return "pending";
-    }
-
-    if (getUserDomainStatus(currentUser, appConfig) !== "pending") {
-      return getUserDomainStatus(currentUser, appConfig);
-    }
-
-    await sleep(delayMs);
-  }
-
-  return currentUser ? getUserDomainStatus(currentUser, appConfig) : "pending";
-}
-
 async function rejectDisallowedSession() {
   if (!currentUser) {
     return false;
   }
 
-  const status = getUserDomainStatus(currentUser, appConfig);
-  if (status === "pending") {
-    return false;
-  }
-
-  if (status === "allowed") {
+  if (isAllowedEmailForDomain(currentUser.email, appConfig)) {
     return false;
   }
 
@@ -404,9 +368,6 @@ async function bootstrap() {
   bindSessionChoice();
 
   await checkAuth();
-	if (currentUser) {
-		await waitForDomainLabel();
-	}
 	const wasRejected = await rejectDisallowedSession();
 
   if (!currentUser) {

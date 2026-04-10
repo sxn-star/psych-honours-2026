@@ -60,10 +60,8 @@ export function getAllowedEmailDomain(appConfig) {
 	return normalizeText(appConfig?.allowedDomain || "").toLowerCase();
 }
 
-export function getAllowedDomainRole(appConfig) {
-	const allowedDomain = getAllowedEmailDomain(appConfig);
-	return allowedDomain ? Role.label(allowedDomain) : "";
-}
+const ALLOWED_DOMAIN_LABEL = "orgallowed";
+const BLOCKED_DOMAIN_LABEL = "orgblocked";
 
 export function isAllowedEmailForDomain(email, appConfig) {
 	const normalizedEmail = normalizeText(email).toLowerCase();
@@ -82,14 +80,13 @@ export function isAllowedEmailForDomain(email, appConfig) {
 
 export function getUserDomainLabel(user, appConfig) {
 	const labels = Array.isArray(user?.labels) ? user.labels : [];
-	const allowedDomainRole = getAllowedDomainRole(appConfig);
 
-	if (allowedDomainRole && labels.includes(allowedDomainRole)) {
-		return allowedDomainRole;
+	if (labels.includes(ALLOWED_DOMAIN_LABEL)) {
+		return ALLOWED_DOMAIN_LABEL;
 	}
 
-	if (labels.includes("domain:blocked")) {
-		return "domain:blocked";
+	if (labels.includes(BLOCKED_DOMAIN_LABEL)) {
+		return BLOCKED_DOMAIN_LABEL;
 	}
 
 	return "";
@@ -97,7 +94,7 @@ export function getUserDomainLabel(user, appConfig) {
 
 export function getUserDomainStatus(user, appConfig) {
 	const domainLabel = getUserDomainLabel(user, appConfig);
-	if (domainLabel === "domain:blocked") {
+	if (domainLabel === BLOCKED_DOMAIN_LABEL) {
 		return "blocked";
 	}
 
@@ -198,7 +195,7 @@ export async function resolveCurrentStudentPage({ account, databases, databaseId
 		return null;
 	}
 
-	if (getUserDomainStatus(currentUser, appConfig) !== "allowed") {
+	if (!isAllowedEmailForDomain(currentUser.email, appConfig)) {
 		return null;
 	}
 
@@ -255,7 +252,7 @@ export async function claimStudentPageForUser({ account, databases, databaseId, 
 	}
 
 	const currentUser = await account.get();
-	if (getUserDomainStatus(currentUser, appConfig) !== "allowed") {
+	if (!isAllowedEmailForDomain(currentUser.email, appConfig)) {
 		throw new Error("Use your allowed email domain to create a student page.");
 	}
 

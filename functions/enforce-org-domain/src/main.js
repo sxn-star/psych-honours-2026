@@ -31,14 +31,14 @@ module.exports = async ({ req, res, log, error }) => {
     const user = await users.get(userId);
     const existingLabels = Array.isArray(user.labels) ? user.labels : [];
 
-    const labelsWithoutDomainPrefix = existingLabels.filter((label) => label !== "orgallowed" && label !== "orgblocked" && !label.startsWith("domain:"));
-    const newLabel = isAllowed ? "orgallowed" : "orgblocked";
+    const labelsWithoutDomainPrefix = existingLabels.filter((label) => !label.startsWith("domain:"));
+    const newLabel = isAllowed ? `domain:${allowedDomain}` : "domain:blocked";
     const updatedLabels = [...new Set([...labelsWithoutDomainPrefix, newLabel])];
 
     await users.updateLabels(userId, updatedLabels);
 
     if (!isAllowed) {
-      log(`User ${userId} labeled as orgblocked (${email})`);
+      log(`User ${userId} labeled as domain:blocked (${email})`);
     }
 
     return res.json(

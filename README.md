@@ -119,4 +119,4 @@ Set these function environment variables:
 - `APPWRITE_API_KEY` = API key with user read/write scopes (set as secret)
 - `ALLOWED_DOMAIN` = allowed email domain (example: `example.org`)
 
-Add a user-created event trigger so the function runs automatically when a new user signs up. Disallowed domains are labeled as `orgblocked`; allowed domains are labeled as `orgallowed`.
+Add a user-created event trigger so the function runs automatically when a new user signs up. Disallowed domains are labeled as `domain:blocked`; allowed domains are labeled for traceability.

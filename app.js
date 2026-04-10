@@ -1,4 +1,4 @@
-import { Client, Account, Databases } from "https://cdn.jsdelivr.net/npm/appwrite@13.0.0/+esm";
+import { Client, Account, Databases, ID } from "https://cdn.jsdelivr.net/npm/appwrite@13.0.0/+esm";
 import { claimStudentPageForUser, getAllowedEmailDomain, isAllowedEmailForDomain, listStudentPages, resolveCurrentStudentPage } from "./student-pages.js";
 
 const appConfig = window.APP_CONFIG;
@@ -119,6 +119,81 @@ function createSessionChoiceOverlay() {
   studentButton.className = "rounded-xl bg-brand-deep px-4 py-3 text-sm font-medium text-brand-paper transition hover:bg-brand-sky hover:text-brand-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky dark:bg-brand-sky dark:text-brand-deep dark:hover:bg-brand-mist dark:focus-visible:ring-brand-mist";
   studentButton.innerHTML = iconLabel(ICONS.student, "I am a Student");
 
+  const studentAuthWrap = document.createElement("div");
+  studentAuthWrap.className = "mt-4 hidden rounded-2xl border border-brand-sky/40 bg-brand-mist/60 p-4 dark:border-brand-sky/50 dark:bg-brand-deep/60";
+
+  const studentAuthTitle = document.createElement("h3");
+  studentAuthTitle.className = "text-sm font-semibold tracking-tight text-brand-deep dark:text-brand-paper";
+  studentAuthTitle.textContent = "Student Sign In";
+
+  const studentAuthHint = document.createElement("p");
+  studentAuthHint.className = "mt-1 text-xs text-brand-deep/75 dark:text-brand-mist/80";
+  studentAuthHint.textContent = "Use your student email and password.";
+
+  const nameLabel = document.createElement("label");
+  nameLabel.className = "mt-3 block text-xs font-medium text-brand-deep/80 dark:text-brand-mist/85";
+  nameLabel.textContent = "Full name (only for sign up)";
+
+  const nameInput = document.createElement("input");
+  nameInput.type = "text";
+  nameInput.className = "mt-1 w-full rounded-lg border border-brand-sky/40 bg-brand-paper px-3 py-2 text-sm text-brand-deep outline-none transition focus:border-brand-sky focus:ring-2 focus:ring-brand-sky/40 dark:border-brand-sky/50 dark:bg-brand-deep dark:text-brand-paper";
+  nameInput.placeholder = "Jane Student";
+
+  const emailLabel = document.createElement("label");
+  emailLabel.className = "mt-3 block text-xs font-medium text-brand-deep/80 dark:text-brand-mist/85";
+  emailLabel.textContent = "Email";
+
+  const emailInput = document.createElement("input");
+  emailInput.type = "email";
+  emailInput.autocomplete = "email";
+  emailInput.required = true;
+  emailInput.className = "mt-1 w-full rounded-lg border border-brand-sky/40 bg-brand-paper px-3 py-2 text-sm text-brand-deep outline-none transition focus:border-brand-sky focus:ring-2 focus:ring-brand-sky/40 dark:border-brand-sky/50 dark:bg-brand-deep dark:text-brand-paper";
+  emailInput.placeholder = "student@example.org";
+
+  const passwordLabel = document.createElement("label");
+  passwordLabel.className = "mt-3 block text-xs font-medium text-brand-deep/80 dark:text-brand-mist/85";
+  passwordLabel.textContent = "Password";
+
+  const passwordInput = document.createElement("input");
+  passwordInput.type = "password";
+  passwordInput.autocomplete = "current-password";
+  passwordInput.required = true;
+  passwordInput.minLength = 8;
+  passwordInput.className = "mt-1 w-full rounded-lg border border-brand-sky/40 bg-brand-paper px-3 py-2 text-sm text-brand-deep outline-none transition focus:border-brand-sky focus:ring-2 focus:ring-brand-sky/40 dark:border-brand-sky/50 dark:bg-brand-deep dark:text-brand-paper";
+  passwordInput.placeholder = "At least 8 characters";
+
+  const studentAuthActions = document.createElement("div");
+  studentAuthActions.className = "mt-4 flex flex-wrap gap-2";
+
+  const signInButton = document.createElement("button");
+  signInButton.type = "button";
+  signInButton.className = "rounded-lg bg-brand-deep px-3 py-2 text-sm font-medium text-brand-paper transition hover:bg-brand-sky hover:text-brand-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky dark:bg-brand-sky dark:text-brand-deep dark:hover:bg-brand-mist";
+  signInButton.textContent = "Sign in";
+
+  const signUpButton = document.createElement("button");
+  signUpButton.type = "button";
+  signUpButton.className = "rounded-lg border border-brand-sky/50 px-3 py-2 text-sm font-medium text-brand-deep transition hover:bg-brand-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky dark:border-brand-sky/60 dark:text-brand-paper dark:hover:bg-brand-sky/20";
+  signUpButton.textContent = "Create account";
+
+  const backButton = document.createElement("button");
+  backButton.type = "button";
+  backButton.className = "rounded-lg border border-transparent px-3 py-2 text-xs font-medium text-brand-deep/80 transition hover:border-brand-sky/40 hover:bg-brand-paper/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-sky dark:text-brand-mist/85 dark:hover:bg-brand-sky/20";
+  backButton.textContent = "Back";
+
+  studentAuthActions.appendChild(signInButton);
+  studentAuthActions.appendChild(signUpButton);
+  studentAuthActions.appendChild(backButton);
+
+  studentAuthWrap.appendChild(studentAuthTitle);
+  studentAuthWrap.appendChild(studentAuthHint);
+  studentAuthWrap.appendChild(nameLabel);
+  studentAuthWrap.appendChild(nameInput);
+  studentAuthWrap.appendChild(emailLabel);
+  studentAuthWrap.appendChild(emailInput);
+  studentAuthWrap.appendChild(passwordLabel);
+  studentAuthWrap.appendChild(passwordInput);
+  studentAuthWrap.appendChild(studentAuthActions);
+
   const status = document.createElement("p");
   status.className = "mt-4 text-sm text-brand-deep/80 dark:text-brand-mist/85";
   status.setAttribute("aria-live", "polite");
@@ -128,6 +203,7 @@ function createSessionChoiceOverlay() {
   panel.appendChild(title);
   panel.appendChild(subtitle);
   panel.appendChild(actions);
+  panel.appendChild(studentAuthWrap);
   panel.appendChild(status);
   overlay.appendChild(panel);
   document.body.appendChild(overlay);
@@ -136,13 +212,26 @@ function createSessionChoiceOverlay() {
     overlay,
     guestButton,
     studentButton,
-    status
+    status,
+    studentAuthWrap,
+    signInButton,
+    signUpButton,
+    backButton,
+    nameInput,
+    emailInput,
+    passwordInput
   };
 }
 
 function showSessionChoiceOverlay() {
   sessionChoice.overlay.classList.remove("hidden");
   sessionChoice.overlay.classList.add("flex");
+  sessionChoice.studentAuthWrap.classList.add("hidden");
+  sessionChoice.guestButton.classList.remove("hidden");
+  sessionChoice.studentButton.classList.remove("hidden");
+  sessionChoice.nameInput.value = "";
+  sessionChoice.emailInput.value = "";
+  sessionChoice.passwordInput.value = "";
   sessionChoice.status.textContent = "";
 }
 
@@ -153,10 +242,85 @@ function hideSessionChoiceOverlay() {
 }
 
 function bindSessionChoice() {
-  sessionChoice.studentButton.onclick = () => {
-    sessionChoice.status.textContent = "Redirecting to student login...";
-    account.createOAuth2Session("google", window.location.href, window.location.href);
+  const setStudentAuthBusy = (busy) => {
+    sessionChoice.guestButton.disabled = busy;
+    sessionChoice.studentButton.disabled = busy;
+    sessionChoice.signInButton.disabled = busy;
+    sessionChoice.signUpButton.disabled = busy;
+    sessionChoice.backButton.disabled = busy;
+    sessionChoice.emailInput.disabled = busy;
+    sessionChoice.passwordInput.disabled = busy;
+    sessionChoice.nameInput.disabled = busy;
   };
+
+  const startStudentAuth = () => {
+    sessionChoice.studentAuthWrap.classList.remove("hidden");
+    sessionChoice.guestButton.classList.add("hidden");
+    sessionChoice.studentButton.classList.add("hidden");
+    sessionChoice.status.textContent = "";
+    sessionChoice.emailInput.focus();
+  };
+
+  const resetToChoice = () => {
+    sessionChoice.studentAuthWrap.classList.add("hidden");
+    sessionChoice.guestButton.classList.remove("hidden");
+    sessionChoice.studentButton.classList.remove("hidden");
+    sessionChoice.status.textContent = "";
+  };
+
+  const completeStudentAuth = async (mode) => {
+    const email = sessionChoice.emailInput.value.trim().toLowerCase();
+    const password = sessionChoice.passwordInput.value;
+    const fullName = sessionChoice.nameInput.value.trim();
+
+    if (!email || !password) {
+      sessionChoice.status.textContent = "Enter both email and password.";
+      return;
+    }
+
+    if (!isAllowedEmailForDomain(email, appConfig)) {
+      const allowedDomain = getAllowedEmailDomain(appConfig);
+      sessionChoice.status.textContent = allowedDomain
+        ? `Use your @${allowedDomain} email for student access.`
+        : "This email is not allowed for student access.";
+      return;
+    }
+
+    if (mode === "signup" && !fullName) {
+      sessionChoice.status.textContent = "Enter your full name to create your account.";
+      sessionChoice.nameInput.focus();
+      return;
+    }
+
+    if (password.length < 8) {
+      sessionChoice.status.textContent = "Password must be at least 8 characters.";
+      return;
+    }
+
+    setStudentAuthBusy(true);
+    sessionChoice.status.textContent = mode === "signin" ? "Signing in..." : "Creating account...";
+
+    try {
+      if (mode === "signup") {
+        await account.create(ID.unique(), email, password, fullName || "Student");
+      }
+
+      await account.createEmailPasswordSession(email, password);
+      window.location.reload();
+    } catch (error) {
+      const detail = error && error.message ? error.message : "Unknown error";
+      sessionChoice.status.textContent = detail;
+      setStudentAuthBusy(false);
+    }
+  };
+
+  sessionChoice.studentButton.onclick = () => {
+    startStudentAuth();
+  };
+
+  sessionChoice.signInButton.onclick = () => completeStudentAuth("signin");
+  sessionChoice.signUpButton.onclick = () => completeStudentAuth("signup");
+  sessionChoice.backButton.onclick = resetToChoice;
 
   sessionChoice.guestButton.onclick = async () => {
     sessionChoice.guestButton.disabled = true;
@@ -222,9 +386,9 @@ function setAuthButton() {
   }
 
   loginBtn.innerHTML = iconLabel(ICONS.login, "Login");
-  loginBtn.setAttribute("aria-label", "Log in with Google");
+  loginBtn.setAttribute("aria-label", "Log in");
   loginBtn.onclick = () => {
-    account.createOAuth2Session("google", window.location.href, window.location.href);
+    showSessionChoiceOverlay();
   };
 }
 

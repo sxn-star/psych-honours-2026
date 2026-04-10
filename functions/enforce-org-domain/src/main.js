@@ -1,19 +1,12 @@
 const sdk = require("node-appwrite");
 
-function normalizeDomain(value) {
-  return String(value || "")
-    .trim()
-    .toLowerCase()
-    .replace(/^@+/, "");
-}
-
 module.exports = async ({ req, res, log, error }) => {
   try {
     const payload = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
 
     const userId = payload.$id || payload.userId;
     const email = String(payload.email || "").toLowerCase();
-    const allowedDomain = normalizeDomain(process.env.ALLOWED_DOMAIN);
+    const allowedDomain = String(process.env.ALLOWED_DOMAIN || "").toLowerCase();
 
     if (!userId || !email || !allowedDomain) {
       return res.json(

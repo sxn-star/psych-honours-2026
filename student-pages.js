@@ -57,9 +57,7 @@ export function getStudentPagesCollectionId(appConfig) {
 }
 
 export function getAllowedEmailDomain(appConfig) {
-	return normalizeText(appConfig?.allowedDomain || "")
-		.toLowerCase()
-		.replace(/^@+/, "");
+	return normalizeText(appConfig?.allowedDomain || "").toLowerCase();
 }
 
 const ALLOWED_DOMAIN_LABEL = "orgallowed";
